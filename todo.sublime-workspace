@@ -1,0 +1,1137 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"NewTe",
+				"NewTextLength"
+			],
+			[
+				"Archive",
+				"ArchiveCompletedItems"
+			],
+			[
+				"Runnin",
+				"RunningNumCompletedItems"
+			],
+			[
+				"Complete",
+				"CompleteTodoItem"
+			],
+			[
+				"Prio",
+				"Priority"
+			],
+			[
+				"Priorit",
+				"PrioritizeTodoItem"
+			],
+			[
+				"Content",
+				"ContentsSize"
+			],
+			[
+				"Conte",
+				"ContentsSize"
+			],
+			[
+				"Serial",
+				"SerializeTodoFile"
+			],
+			[
+				"items",
+				"Items"
+			],
+			[
+				"Number",
+				"NumberOfItems"
+			],
+			[
+				"GetTo",
+				"GetTodoItemFromNumber"
+			],
+			[
+				"Parse",
+				"ParseTodoLine"
+			],
+			[
+				"read",
+				"read_file_result"
+			],
+			[
+				"WIN32",
+				"WIN32_FILENAME_SIZE"
+			],
+			[
+				"Abs",
+				"AbsTileY"
+			],
+			[
+				"AbSTil",
+				"AbsTileX"
+			],
+			[
+				"Tilechunk",
+				"TileChunkX"
+			],
+			[
+				"uint32",
+				"uint32"
+			],
+			[
+				"TileSide",
+				"TileSideInMeters"
+			],
+			[
+				"Rec",
+				"RecanonicalizePosition"
+			],
+			[
+				"TileMap",
+				"TileMapX"
+			],
+			[
+				"PlayerTile",
+				"PlayerTileX"
+			],
+			[
+				"PlayerTileMa",
+				"PlayerTileMapY"
+			],
+			[
+				"PlayerTileM",
+				"PlayerTileMapX"
+			],
+			[
+				"TILE",
+				"TILE_MAP_COUNT_Y"
+			],
+			[
+				"TILE_",
+				"TILE_MAP_COUNT_X"
+			],
+			[
+				"TILE_MAP",
+				"TILE_MAP_COUNT_X"
+			],
+			[
+				"Targe",
+				"TargetSecondsPerFrame"
+			],
+			[
+				"Memor",
+				"MemoryBlock"
+			],
+			[
+				"thra",
+				"thread_context"
+			],
+			[
+				"SourceGame",
+				"SourceGameCodeDLLFullPath"
+			],
+			[
+				"DLL",
+				"DLL_EXPORTS"
+			],
+			[
+				"LINKER",
+				"LINKER_SHARED"
+			],
+			[
+				"GameM",
+				"GameMemoryBlock"
+			],
+			[
+				"colloqui",
+				"colloquialDateAndTime"
+			],
+			[
+				"DEBUGPlat",
+				"DEBUGPlatformWriteEntireFile"
+			],
+			[
+				"DEBUGPlatf",
+				"DEBUGPlatformFreeFileMemory"
+			],
+			[
+				"DEBUG",
+				"DEBUGPlatformReadEntireFile"
+			],
+			[
+				"DEBUGP",
+				"DEBUGPlatformWriteEntireFile"
+			],
+			[
+				"GameGet",
+				"GameGetSoundSamplesStub"
+			],
+			[
+				"GameUpdateAndRen",
+				"GameUpdateAndRenderStub"
+			],
+			[
+				"Expecte",
+				"ExpectedSoundBytesPerFrame"
+			],
+			[
+				"Audio",
+				"AudioWallCock"
+			],
+			[
+				"Expected",
+				"ExpectedFrameBoundaryByte"
+			],
+			[
+				"DebugTimeMar",
+				"DebugTimeMarkerIndex"
+			],
+			[
+				"0xF",
+				"0xFFFF0000"
+			],
+			[
+				"Second",
+				"SecondaryBufferSize"
+			],
+			[
+				"PlayCursor",
+				"PlayCursorIndex"
+			],
+			[
+				"LastPlay",
+				"LastPlayCursor"
+			],
+			[
+				"DebugLas",
+				"DebugLastPlayCursor"
+			],
+			[
+				"debugLast",
+				"DebugLastPlayCursorIndex"
+			],
+			[
+				"DebugLast",
+				"DebugLastPlayCursorIndex"
+			],
+			[
+				"Last",
+				"LastCycleCount"
+			],
+			[
+				"Las",
+				"LastCycleCount"
+			],
+			[
+				"LA",
+				"LARGE_INTEGER"
+			],
+			[
+				"secondsElaps",
+				"SecondsElapsedForFrame"
+			],
+			[
+				"SecondsEl",
+				"SecondsElapsedForWork"
+			],
+			[
+				"Stick",
+				"StickAverageY"
+			],
+			[
+				"Sticka",
+				"StickAverageX"
+			],
+			[
+				"XINPUT_LEFT",
+				"XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE"
+			],
+			[
+				"Keyboar",
+				"KeyboardController"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "code/todo.cpp",
+			"settings":
+			{
+				"buffer_size": 13576,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/win32_todo.cpp",
+			"settings":
+			{
+				"buffer_size": 7867,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/win32_todo.h",
+			"settings":
+			{
+				"buffer_size": 523,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/chr.h",
+			"settings":
+			{
+				"buffer_size": 5529,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "build/x64/todo.txt",
+			"settings":
+			{
+				"buffer_size": 269,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "code/todo.h",
+			"settings":
+			{
+				"buffer_size": 499,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "Packages/User/Batch.sublime-build",
+	"command_palette":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"",
+				"ANF: New File"
+			],
+			[
+				"new ",
+				"ANF: New File"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"create",
+				"Create file from Template"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"new",
+				"ANF: New File"
+			],
+			[
+				"hex",
+				"Hex Viewer: Show Hex Edit Panel"
+			],
+			[
+				"browse",
+				"Preferences: Browse Packages"
+			],
+			[
+				"folder",
+				"Project: Add Folder"
+			],
+			[
+				"project",
+				"Project: Save As"
+			],
+			[
+				"user",
+				"Preferences: Key Bindings - User"
+			],
+			[
+				"anf",
+				"ANF: New File"
+			],
+			[
+				"template",
+				"Create file from Template"
+			],
+			[
+				"compare",
+				"Sublimerge: Compare to Revision..."
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"diff",
+				"Git: Diff Current File"
+			],
+			[
+				"key",
+				"Preferences: Key Bindings - Default"
+			],
+			[
+				"Package Control: list",
+				"Package Control: List Packages"
+			],
+			[
+				"actionsc",
+				"Package Control: Install Package"
+			],
+			[
+				"git ",
+				"Git: Commit"
+			],
+			[
+				"add",
+				"Git: Add..."
+			],
+			[
+				"ke",
+				"Preferences: Key Bindings - User"
+			],
+			[
+				"keyb",
+				"Preferences: Key Bindings - User"
+			],
+			[
+				"HIGH",
+				"HighlightWords: Highlight Words"
+			],
+			[
+				"High",
+				"HighlightWords: Highlight Words"
+			],
+			[
+				"high",
+				"HighlightWords: Highlight Words"
+			],
+			[
+				"hih",
+				"HighlightWords: Toggle Settings"
+			],
+			[
+				"settings",
+				"Preferences: Settings - User"
+			],
+			[
+				"lint gutter",
+				"SublimeLinter: Choose Gutter Theme"
+			],
+			[
+				"lint",
+				"SublimeLinter: Choose Mark Style"
+			],
+			[
+				"sublimelinter",
+				"Preferences: SublimeLinter Settings – User"
+			],
+			[
+				"list",
+				"Package Control: List Packages"
+			],
+			[
+				"mark style",
+				"SublimeLinter: Choose Mark Style"
+			],
+			[
+				"mode",
+				"SublimeLinter: Choose Lint Mode"
+			],
+			[
+				"User",
+				"Preferences: Settings - User"
+			],
+			[
+				"sublime",
+				"Preferences: SublimeLint Settings – User"
+			],
+			[
+				"linter",
+				"Preferences: SublimeLint Settings – User"
+			],
+			[
+				"commit",
+				"Git: Commit"
+			],
+			[
+				"git",
+				"Git: Commit"
+			],
+			[
+				"add ",
+				"Git: Add..."
+			],
+			[
+				"package",
+				"Package Control: Remove Package"
+			],
+			[
+				"Browse",
+				"Preferences: Browse Packages"
+			],
+			[
+				"opoen",
+				"TodoReview: Project and Open Files"
+			],
+			[
+				"Install",
+				"Package Control: Install Package"
+			],
+			[
+				"Install ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package",
+				"Preferences: Browse Packages"
+			],
+			[
+				"packages",
+				"Preferences: Browse Packages"
+			],
+			[
+				"brog",
+				"Preferences: Browse Packages"
+			]
+		],
+		"width": 581.0
+	},
+	"console":
+	{
+		"height": 162.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/dev/test/todo",
+		"/C/dev/test/todo/build",
+		"/C/dev/test/todo/build/x64",
+		"/C/dev/test/todo/code"
+	],
+	"file_history":
+	[
+		"/C/dev/test/todo/build.bat",
+		"/C/dev/test/todo/build/x64/win32_todo.map",
+		"/C/dev/test/todo/build/x64/todo.txt",
+		"/C/dev/test/todo/build/x64/done.txt",
+		"/C/dev/test/todo/code/chr.h",
+		"/C/dev/game/hero/code/win32_handmade.cpp",
+		"/C/dev/game/hero/code/win32_handmade.h",
+		"/C/dev/game/hero/code/handmade.h",
+		"/C/dev/game/hero/code/handmade_platform.h",
+		"/C/dev/test/todo/code/win32_todo.h",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Batch.sublime-build",
+		"/C/dev/game/hero/build.bat",
+		"/C/dev/game/hero/code/handmade.cpp",
+		"/w/program files (x86)/windows kits/8.1/include/um/winnt.h",
+		"/C/dev/test/todo/chr.h",
+		"/C/dev/test/todo/win32_todo.cpp",
+		"/C/dev/test/todo/todo.cpp",
+		"/C/dev/test/chr/chr.h",
+		"/C/dev/game/hero/code/chr.h",
+		"/C/dev/game/hero/win32_handmade.sln",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/C/dev/work/smartbag/nfc_test/nfc_test.ino",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/handmadehero.sublime-build",
+		"/C/dev/game/hero/build/handmade.sublime-project",
+		"/W/Users/chronal/Desktop/handmade_hero_day_025_source/misc/shell.bat",
+		"/C/dev/game/hero/debug.bat",
+		"/C/dev/game/hero/shell.bat",
+		"/W/Users/chronal/Desktop/handmade.cpp",
+		"/W/Users/chronal/Desktop/win32_handmade.cpp",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/ScrollOtherPane/Default (Windows).sublime-keymap",
+		"/C/dev/game/hero/data/test.out",
+		"/C/dev/game/hero/test.out",
+		"/W/Users/chronal/Desktop/Game/code/resource.cpp",
+		"/W/Users/chronal/Desktop/Game/code/entity.cpp",
+		"/W/Users/chronal/Desktop/Game/code/player.cpp",
+		"/W/Users/chronal/Desktop/Game/code/main.cpp",
+		"/W/Users/chronal/Desktop/Game/code/state.cpp",
+		"/W/Users/chronal/Desktop/Game/shell.bat",
+		"/W/Users/chronal/Desktop/Game/build.bat",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/rpggame.sublime-build",
+		"/C/dev/game/lib/SFML-2.2/src/SFML-master/src/SFML/Graphics/Font.cpp",
+		"/W/Users/chronal/Desktop/Game/code/arpeggio.cpp",
+		"/C/dev/game/chronalrobot/modules/handmade.py",
+		"/W/Users/chronal/.willie/modules/handmade_faq.py",
+		"/W/Users/chronal/.willie/modules/handmade_stream.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/db.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/modules/remind.py",
+		"/W/Users/chronal/.willie/modules/handmade_bonus.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/module.py",
+		"/C/dev/game/chronalrobot/modules/test.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/bot.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/tools.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/modules/spellcheck.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/modules/uptime.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/modules/meetbot.py",
+		"/C/Programs/Python27/Lib/site-packages/willie/config.py",
+		"/W/Users/chronal/.willie/modules/streamutils.py",
+		"/C/dev/game/chronalrobot/modules/stream.py",
+		"/C/dev/game/chronalrobot/__init__.py",
+		"/C/dev/game/chronalrobot/modules/search.py",
+		"/C/dev/game/chronalrobot/modules/xkcd.py",
+		"/d/test/hero/code/handmade.cpp",
+		"/C/dev/game/willie-handmade/handmade.py",
+		"/W/Users/chronal/Desktop/test.py",
+		"/C/dev/game/willie-handmade/test.py",
+		"/C/dev/game/willie-handmade/willie/__init__.py",
+		"/d/test/hero/code/win32_handmade.cpp",
+		"/C/Programs/SublimeText/3/Packages/D/D.sublime-build",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Programs/SublimeText/3/Packages/C++/C++.sublime-build",
+		"/W/Users/chronal/Desktop/handmade.h",
+		"/W/Users/chronal/AppData/Local/Temp/Temp1_handmade_hero_day_017_source.zip/code/win32_handmade.cpp",
+		"/W/Users/chronal/Desktop/build.bat",
+		"/C/Programs/SublimeText/3/Packages/C++/C++.tmLanguage",
+		"/C/Programs/SublimeText/3/Packages/C++/C++.sublime-settings",
+		"/C/dev/game/hero/build_dbg.bat",
+		"/C/dev/game/hero/build_release.bat",
+		"/C/Programs/SublimeText/3/Packages/C++.sublime-package",
+		"/C/dev/game/hero/handmade.cpp",
+		"/C/dev/game/hero/handmade.h",
+		"/C/dev/game/hero/build/win32_handmade.map",
+		"/C/dev/game/home/data/2014-12-06.json",
+		"/C/dev/game/DragonHoard/src/com/synchrogames/DragonHoard.as",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/Blacklion Plugins/highlight_code_remarks.py",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Colorsublime/themes/KoralGreen.tmTheme",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Installed Packages/sublimelint/Default.sublime-commands",
+		"/C/dev/game/hero/Command Line.lnk",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLint.sublime-settings",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/sublimelint/SublimeLint.sublime-settings",
+		"/C/dev/game/hero/.gitignore",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/GlassIt/glassit.sublime-settings",
+		"/C/dev/game/hero/build/win32_handmade.ilk",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/TodoReview.sublime-settings",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/TodoReview/TodoReview.sublime-settings"
+	],
+	"find":
+	{
+		"height": 44.0
+	},
+	"find_in_files":
+	{
+		"height": 118.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"Todo->",
+			"char",
+			"Todo",
+			"GetTodoFile",
+			");\n",
+			"SortTodoItem",
+			"GetTodoFile",
+			".",
+			" - ",
+			"< ",
+			"GetItemLength",
+			"'0'",
+			"if (",
+			"GetNumberOfItems",
+			"NumberOfLines",
+			"Item",
+			"todo_line",
+			"    \n",
+			"char",
+			"FreeFileMemory",
+			"Length",
+			"int32",
+			";\n",
+			"};\n",
+			"Win32BuildEXEPathFile",
+			"CatStrings",
+			"timeBeginPeriod",
+			"BUILT_SOMETHING",
+			"GetTileValue",
+			"TileChunkPoint",
+			"TileMap",
+			"GetTileMap",
+			"tile_map",
+			"World->CountX",
+			"canonical_position",
+			"real32 Player",
+			"LowerLeftX",
+			"World.UpperLeft",
+			"World.UpperLf",
+			"World.TileSide",
+			"RelX",
+			"TileHeight",
+			"TileWidth",
+			"UpperLeftX",
+			"Truncate",
+			"TileY",
+			"TileX",
+			"TileY",
+			"TileX",
+			"IsTileMa",
+			"TileMap.",
+			"Win32Dis",
+			"MinY",
+			"UpdateAndRender",
+			"GameUpdateAndRe",
+			"win32_replay",
+			"printf",
+			"Win32DebugSy",
+			"win32_replay",
+			"win32_replay_",
+			"VirtualA",
+			"!Global",
+			"VirtualAlloc",
+			"Win32LoadGam",
+			"Win32State",
+			"MAX_PATH",
+			"ExpectedSound",
+			"C",
+			"dev",
+			"win32_handmade",
+			"GENERIC_READ",
+			"BeginReco",
+			"_make_where",
+			"substitution",
+			"self.db.subs",
+			"make_where",
+			"def get(",
+			".get",
+			".db",
+			"time",
+			"Time",
+			"dateParser",
+			"date",
+			"pTime",
+			"stderr",
+			"type",
+			"datetime",
+			"):\n",
+			" \".",
+			"nowTime",
+			"    \n",
+			"stream.",
+			"isCurre",
+			"getStreamTime",
+			"# @command('flame', hide=True)\n# def flameWar(bot, trigger):\n#     \"\"\"Easter egg command that randomly chooses whether to insult a language or endorse an\n#        editor.\n#     \"\"\"\n#     if (random.random() < 0.5):\n#         badLanguage(bot, trigger)\n#     else:\n#         bestEditor(bot, trigger)\n\n# @command('throwdown', 'badlanguage', hide=True)\n# def badLanguage(bot, trigger):\n#     \"\"\"Easter egg command that insults a random language from this list. Feel free to add lots\n#        more languages >:) (Possibly including C???)\n#     \"\"\"\n#     langs = [ \"Ruby\", \"Python\", \"C++\", \"PHP\", \"Rust\", \"Go\", \"Perl\", \"C#\", \"Java\", \"Scala\", \"Objective-C\", \"F#\",\n#     \"Haskell\", \"Clojure\", \"BASIC\", \"Visual Basic\", \"HTML\", \"CSS\", \"Javascript\", \"Actionscript\", \"D\" ]\n#     bot.say(\"%s is a bad language :)\" % random.choice(langs))\n\n# @command('holywar', 'besteditor', hide=True)\n# def bestEditor(bot, trigger):\n#     \"\"\"Easter egg command that endorses either emacs or vim. Feel free to add more editors.\n#     \"\"\"\n#     editors = [\"emacs\", \"vim\"]\n#     bot.say(\"%s is the best editor :)\" % random.choice(editors))",
+			"howlong",
+			"Win32Load",
+			"Win32LoadGa",
+			"Win32Loa",
+			"Win32Loca",
+			"while(Glo",
+			"IsValid",
+			";\n",
+			"SafetyBytes",
+			"DS_OK",
+			"ExpectedBytes",
+			"AudioWallCock",
+			"Assert(",
+			"GlobalPause",
+			"GlobalRunning",
+			"DWORD Play",
+			"DebugSync",
+			"ByteToLock",
+			"DWORD Play",
+			"BTL",
+			"u",
+			"if (SoundIs",
+			"else",
+			"int PadX",
+			"SoundIsValid",
+			"DWORD Play",
+			"DWORD ",
+			"DebugPlayCursor",
+			"PlayCursor",
+			"Pitch",
+			"DWORD Play",
+			"GlobalSecondaryBuffer",
+			"[GameUpdateHz]"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"todo_item",
+			"ACTED",
+			"TileChunkTile",
+			"TileChunk",
+			"GetTileChunk",
+			"tile_chunk",
+			"world_position",
+			"TileSideInPixels",
+			"Floor",
+			"TestTileX",
+			"TestTileY",
+			"TestTileX",
+			"TileMap->",
+			"State",
+			"WIN32_STATE_FILE_NAME",
+			"nowDate",
+			"",
+			"AudioWallClock",
+			"Marker",
+			"GlobalPerfCountFrequency",
+			"NOTE(handmade)",
+			"TODO(handmade)",
+			"//TODO(handmade)",
+			"//TODO(handmade): Logging",
+			"//NOTE(handmade)",
+			"//TODO(chronister",
+			"//TODO(handmade)",
+			"Keyboard",
+			"    "
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "code/todo.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13576,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								11588,
+								11588
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 10218.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "code/win32_todo.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7867,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6497,
+								6497
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2760.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "code/win32_todo.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 523,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								494,
+								494
+							]
+						],
+						"settings":
+						{
+							"_anf_new": "",
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "code/chr.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5529,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1747,
+								1747
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1973.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 4,
+					"file": "build/x64/todo.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 269,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								269,
+								269
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "code/todo.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 499,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								151,
+								151
+							]
+						],
+						"settings":
+						{
+							"_anf_new": "",
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": -0.0,
+						"translation.y": 198.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 30.0
+	},
+	"input":
+	{
+		"height": 41.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.697814569951,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 175.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git":
+	{
+		"height": 128.0
+	},
+	"output.hex_viewer_inspector":
+	{
+		"height": 140.0
+	},
+	"project": "todo.sublime-project",
+	"replace":
+	{
+		"height": 84.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"chr",
+				"code\\chr.h"
+			],
+			[
+				"command",
+				"Command Line.lnk"
+			],
+			[
+				"hand",
+				"code\\handmade.cpp"
+			],
+			[
+				"build",
+				"build.bat"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+		"last_automatic_layout":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		]
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 207.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
