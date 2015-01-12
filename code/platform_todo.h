@@ -7,8 +7,14 @@ internal void*
 PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory);
 internal void* PlatformAllocMemory(size_t BytesToAlloc);
 
-internal void
+internal bool32
 PlatformFreeMemory(void* Memory);
+
+internal bool32
+PlatformFileExists(char* Filename);
+
+internal string
+PlatformGetUserDir();
 
 internal read_file_result
 PlatformReadEntireFile(char* Filename);

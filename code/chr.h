@@ -50,7 +50,7 @@ typedef double real64;
 #define Max(A, B) (((A) > (B)) ? (A) : (B))
 #define Swap(A, B, T) { T temp##T = A; A = B; B = temp##T; }
 
-#define foreach(ArrayCount, Array, T, iter) for (int i = 0, T iter = Array[0]; i < ArrayCount; ++i, iter = Array[i])
+#define foreach(T, iter, ArrayCount, Array) T iter = Array[0]; for (int i = 0; i < (int64)ArrayCount; ++i, iter = Array[i])
 
 inline uint32
 SafeTruncateUInt64(uint64 Value)
@@ -197,16 +197,16 @@ StringIndexOf(char* Haystack, char* Needle)
 
 //TODO(chronister): Generalize these?
 
-struct integer_parse_result
+struct parse_int_result
 {
     int64 Value;
     bool32 Valid;
 };
 
-integer_parse_result
+parse_int_result
 ParseInteger(int32 TextLength, char* Text)
 {
-    integer_parse_result Result = {};
+    parse_int_result Result = {};
     Result.Valid = true;
 
     int sign = 1;

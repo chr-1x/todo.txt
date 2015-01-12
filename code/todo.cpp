@@ -13,18 +13,105 @@
 global_variable char* TodoBasename = "todo.txt";
 global_variable char* DoneBasename = "done.txt";
 
-//TODO(chronister): Some kind of context, also, we want to use user dir
-internal char* 
-GetTodoFilename()
+//TODO(chronister): Move up into chr.h?
+string 
+CatStrings(string String1, string String2)
 {
-    return TodoBasename;
+    string Result;
+    Result.Length = String1.Length + String2.Length;
+    Result.Value = (char*)PlatformAllocMemory(Result.Length);
+    CatStrings(String1.Length, String1.Value, String2.Length, String2.Value, Result.Length, Result.Value);
+    return Result;
 }
 
-internal char*
-GetDoneFilename()
+string
+CopyString(string Source)
 {
-    //NOTE(chronister): This should be in the same place as the todo.txt given the same context
-    return DoneBasename;
+    string Dest;
+    Dest.Length = Source.Length;
+    Dest.Value = (char*)PlatformAllocMemory(Dest.Length);
+    CopyString(Source.Length, Source.Value, Dest.Length, Dest.Value);
+    return Dest;
+}
+
+//NOTE(chronister): As the name implies, this assumes your string is null-terminated!
+string
+LoftCString(char* CString)
+{
+    string Result;
+    Result.Length = StringLength(CString);
+    Result.Value = CString;
+    return Result;
+}
+
+void
+FreeString(string* Str)
+{
+    PlatformFreeMemory(Str->Value);
+    Str->Length = 0;
+    Str->Value = 0;
+}
+
+//NOTE(chronister): This function returns whether or not Filename was found
+// in either pwd or user home dir. If it wasn't (returns false), the program
+// should probably query if it should be created, and create it.
+// Default creation folder should probably be the home dir.
+internal string
+ConstructLocalFilepath(string Filename)
+{
+    if (PlatformFileExists(Filename.Value))
+    {    
+        //TODO(chronister): Do we want to expand the current directory to the full path?
+        return Filename;
+    }
+
+    // We assume this is a well formed, existing directory
+    // that looks like "C:/Users/Steve/" or "/home/steve/"
+    string UserDir = PlatformGetUserDir(); 
+    string ConstructedPath = CatStrings(UserDir, Filename);
+    return ConstructedPath;
+}
+
+internal string
+ReplaceFilenameInFilepath(string Filepath, string ReplacementName)
+{
+    char* OnePastLastSlash = Filepath.Value;
+    for (char* Scan = Filepath.Value;
+        *Scan;
+        ++Scan)
+    {
+        if (*Scan == '/' || *Scan == '\\')
+        {
+            OnePastLastSlash = Scan + 1;
+        }
+    }
+    if (*OnePastLastSlash == '\0' 
+        && !(*(OnePastLastSlash - 1) == '/' || *(OnePastLastSlash - 1) == '\\'))
+    {
+        OnePastLastSlash = Filepath.Value;
+    }
+    size_t DirLen = OnePastLastSlash - Filepath.Value;
+    string Result;
+    Result.Length = (uint32)DirLen + ReplacementName.Length;
+    Result.Value = (char*)PlatformAllocMemory(Result.Length);
+    CatStrings(DirLen, Filepath.Value, ReplacementName.Length, ReplacementName.Value, Result.Length, Result.Value);
+    return Result;
+}
+
+internal string
+GetTodoFilename()
+{
+    string TodoStr = LoftCString(TodoBasename);
+    return ConstructLocalFilepath(TodoStr);
+}
+
+internal string
+GetDoneFilename(string TodoFilename)
+{
+    //TODO(chronister): This should be in the same place as the todo.txt given the same context
+    // So it needs a way to know which todo.txt is active and use the same directory as that. 
+    string DoneStr = ReplaceFilenameInFilepath(TodoFilename, LoftCString(DoneBasename));
+    return DoneStr;
 }
 
 inline bool32 
@@ -59,6 +146,25 @@ SortTodoItemList(uint32 Length, todo_item* List, int32 (*Compare)(todo_item, tod
 }
 
 int32
+CompareStrings(string A, string B)
+{
+    int i;
+    char* String1 = A.Value;
+    char* String2 = B.Value;
+    for (i = 0;
+        String1[i] && String2[i];
+        ++i)
+    {
+        if (String1[i] > String2[i]) { return 1; }
+        if (String1[i] < String2[i]) { return -1; }
+    }
+    //Check one past the last character, as well, in case they were different lengths
+    if (String1[i] > String2[i]) { return 1; }
+    if (String1[i] < String2[i]) { return -1; }
+    return 0;
+}
+
+int32
 CompareTodoItemPriority(todo_item A, todo_item B)
 {
     if (A.Priority == 0 && B.Priority > 0) { return 1; }
@@ -69,11 +175,7 @@ CompareTodoItemPriority(todo_item A, todo_item B)
     if (A.Complete && !B.Complete) { return 1; }  
     if (B.Complete && !A.Complete) { return -1; }  
     
-    //TODO(chronister): Sort by the whole string
-    if (*A.Body > *B.Body) { return 1; }
-    if (*A.Body < *B.Body) { return -1; }
-
-    return 0;
+    return CompareStrings(A.Body, B.Body);
 }
 
 int32
@@ -83,6 +185,7 @@ CompareTodoItemLineNum(todo_item A, todo_item B)
     if (A.LineNumber > B.LineNumber) { return 1; }
     return 0; 
 }
+
 
 internal int32
 GetNumberOfLines(read_file_result File)
@@ -104,25 +207,24 @@ GetNumberOfLines(read_file_result File)
 }
 
 internal todo_item
-ParseTodoLine(int32 LineNum, size_t Length, char* Line)
+ParseTodoLine(int32 LineNum, string Line)
 {
     todo_item Item = {};
     Item.Priority = 0;
     Item.LineNumber = LineNum;
-    Item.BodyLength = Length;
     Item.Body = Line;
 
-    if (Line[0] == '(' && Line[2] == ')' && Line[3] == ' ' && IsValidPriority(Line[1]))
+    if (Line.Value[0] == '(' && Line.Value[2] == ')' && Line.Value[3] == ' ' && IsValidPriority(Line.Value[1]))
     {
-        Item.Priority = Line[1];
-        Item.BodyLength -= 4;
-        Item.Body += 4;
+        Item.Priority = Line.Value[1];
+        Item.Body.Length -= 4;
+        Item.Body.Value += 4;
     }
-    if (Line[0] == 'x' && Line[1] == ' ')
+    if (Line.Value[0] == 'x' && Line.Value[1] == ' ')
     {
         Item.Complete = true;
-        Item.BodyLength -= 2;
-        Item.Body += 2;
+        Item.Body.Length -= 2;
+        Item.Body.Value += 2;
     }
 
     return Item;
@@ -144,14 +246,17 @@ ParseTodoFile(read_file_result File)
         ++i)
     {
         char* End = Begin + i;
-        if (*End == '\n' or i == (File.ContentsSize))
+        if (*End == '\n' || i == (File.ContentsSize))
         {
             
             size_t Length = End - Start;
             Assert(LineNum < Todo.NumberOfItems);
             *End = '\0';
+            string Line;
+            Line.Length = (uint32)Length;
+            Line.Value = Start;
 
-            Todo.Items[LineNum] = ParseTodoLine(LineNum+1, Length, Start);
+            Todo.Items[LineNum] = ParseTodoLine(LineNum+1, Line);
             
             LineNum += 1;
 
@@ -166,7 +271,7 @@ ParseTodoFile(read_file_result File)
 internal size_t 
 GetItemStringSize(todo_item Item)
 {
-    size_t ItemLength = Item.BodyLength;
+    size_t ItemLength = Item.Body.Length;
 
     if (Item.Complete)
     {
@@ -191,19 +296,19 @@ SerializeTodoItem(todo_item Item, size_t* ResultLength, char* Result)
 
     if (Item.Complete)
     {
-        CatStrings(2, "x ", Item.BodyLength, Item.Body, ItemLength-1, Result);
+        CatStrings(2, "x ", Item.Body.Length, Item.Body.Value, ItemLength-1, Result);
         CatStrings(ItemLength-1, Result, 1, "\n", ItemLength, Result);
     }
     else if (Item.Priority)
     {
         CatStrings(1, "(", 1, &Item.Priority, 2, Result);
         CatStrings(2, Result, 2, ") ", 4, Result);
-        CatStrings(4, Result, Item.BodyLength, Item.Body, ItemLength-1, Result);
+        CatStrings(4, Result, Item.Body.Length, Item.Body.Value, ItemLength-1, Result);
         CatStrings(ItemLength-1, Result, 1, "\n", ItemLength, Result);
     }
     else 
     {
-        CatStrings(Item.BodyLength, Item.Body, 1, "\n", ItemLength, Result);
+        CatStrings(Item.Body.Length, Item.Body.Value, 1, "\n", ItemLength, Result);
     }
 }
 
@@ -216,11 +321,8 @@ SerializeTodoFile(todo_file Todo)
         SortTodoItemList(Todo.NumberOfItems, Todo.Items, &CompareTodoItemLineNum);
 
         size_t TotalSize = 0;
-        for (uint32 i = 0;
-            i < Todo.NumberOfItems;
-            ++i)
+        foreach(todo_item, Item, Todo.NumberOfItems, Todo.Items)
         {
-            todo_item Item = Todo.Items[i];
             TotalSize += GetItemStringSize(Item);
         }
 
@@ -228,12 +330,10 @@ SerializeTodoFile(todo_file Todo)
         Result.Contents = (char*)PlatformAllocMemory(TotalSize);
 
         size_t RunningSize = 0;
-        for (uint32 i = 0;
-            i < Todo.NumberOfItems;
-            ++i)
+        foreach(todo_item, It, Todo.NumberOfItems, Todo.Items)
         {
-            todo_item Item = Todo.Items[i];
-
+            //TODO(chronister): Get a better foreach macro that doesn't require this redefinition
+            Item = It;
             size_t ItemLength = GetItemStringSize(Item);
             char* Serial = (char*)PlatformAllocMemory(ItemLength);
             
@@ -258,8 +358,8 @@ SerializeTodoFile(todo_file Todo)
 todo_file
 GetTodoFile()
 {
-    char* Filename = GetTodoFilename();
-    read_file_result Result = PlatformReadEntireFile(Filename);
+    string Filename = GetTodoFilename();
+    read_file_result Result = PlatformReadEntireFile(Filename.Value);
     todo_file Todo = {};
     if (Result.ContentsSize > 0)
     {
@@ -270,10 +370,10 @@ GetTodoFile()
 }
 
 todo_file
-GetDoneFile()
+GetDoneFile(string TodoFilename)
 {
-    char* Filename = GetDoneFilename();
-    read_file_result Result = PlatformReadEntireFile(Filename);
+    string Filename = GetDoneFilename(TodoFilename);
+    read_file_result Result = PlatformReadEntireFile(Filename.Value);
     todo_file Todo = {0};
     if (Result.ContentsSize > 0)
     {
@@ -287,26 +387,23 @@ bool32
 SaveTodoFile(todo_file Todo)
 {
     read_file_result Serialized = SerializeTodoFile(Todo);
-    return PlatformWriteEntireFile(Todo.Filename, Serialized.ContentsSize, Serialized.Contents);
+    return PlatformWriteEntireFile(Todo.Filename.Value, Serialized.ContentsSize, Serialized.Contents);
 }
 
 bool32
 SaveDoneFile(todo_file Done)
 {
     read_file_result Serialized = SerializeTodoFile(Done);
-    return PlatformWriteEntireFile(Done.Filename, Serialized.ContentsSize, Serialized.Contents);
+    return PlatformWriteEntireFile(Done.Filename.Value, Serialized.ContentsSize, Serialized.Contents);
 }
 
 void
 ListTodoItems(todo_file Todo)
 {
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
-    for (uint32 i = 0;
-        i < Todo.NumberOfItems;
-        ++i)
+    foreach(todo_item, Line, Todo.NumberOfItems, Todo.Items)
     {
-        todo_item Line = Todo.Items[i];
-        if (Line.BodyLength <= 1) { continue; } // Don't display blank lines
+        if (Line.Body.Length <= 1) { continue; } // Don't display blank lines
 
         int32 LineWidth = Log10(Line.LineNumber);
         for (int i = 0;
@@ -318,15 +415,15 @@ ListTodoItems(todo_file Todo)
 
         if (Line.Complete)
         {
-            print("%d: x %s\n", Line.LineNumber, Line.Body);
+            print("%d: x %s\n", Line.LineNumber, Line.Body.Value);
         }
         else if (Line.Priority) 
         {
-            print("%d: (%c) %s\n", Line.LineNumber, Line.Priority, Line.Body);
+            print("%d: (%c) %s\n", Line.LineNumber, Line.Priority, Line.Body.Value);
         }
         else
         {
-            print("%d: %s\n", Line.LineNumber, Line.Body);
+            print("%d: %s\n", Line.LineNumber, Line.Body.Value);
         }
     }
 }
@@ -357,23 +454,32 @@ GetTodoItemIndexFromLineNumber(uint32 Number, todo_file Todo)
 }
 
 void
-AddTodoItem(todo_item* Item)
+AddTodoItem(todo_item Item)
 {
-    //TODO(chronister): Implement this for later
+    todo_file Todo = GetTodoFile();
+    todo_item* OldItems = Todo.Items;
+    todo_item* NewItems = (todo_item*)PlatformAllocMemory((Todo.NumberOfItems + 1)*sizeof(todo_item));
+    CopyMemory(NewItems, OldItems, (Todo.NumberOfItems)*sizeof(todo_item));
+    PlatformFreeMemory((void*)OldItems);
+    Todo.Items = NewItems;
+    Item.LineNumber = Todo.NumberOfItems+1;
+    Todo.Items[Todo.NumberOfItems] = Item;
+    Todo.NumberOfItems += 1;
+    if (SaveTodoFile(Todo))
+    {
+        print("Added \"%s\" to todo.txt on line %d.\n", Item.Body.Value, Item.LineNumber);
+    }
 }
 
 void
 AddTodoItem(char* Line)
 {
-    char* Filename = GetTodoFilename();
+    string ItemStr;
+    ItemStr.Length = StringLength(Line);
+    ItemStr.Value = Line;
 
-    int LineLength = StringLength(Line);
-    char* Dest = (char*)PlatformAllocMemory(LineLength + 1);
-    CatStrings(1, "\n", LineLength, Line, LineLength + 1, Dest);
-    if (PlatformAppendToFile(Filename, LineLength + 1, Dest))
-    {
-        print("Added \"%s\" to todo.txt", Line);
-    }
+    todo_item Item = ParseTodoLine(0, ItemStr);
+    AddTodoItem(Item);
 }
 
 //TODO(chronister): Generalize this out into a generic array remove function
@@ -407,12 +513,12 @@ RemoveTodoItem(int32 ItemNum)
         {
             if (SaveTodoFile(Todo))
             {
-                print("Removed item #%d.", Item->LineNumber);
+                print("Removed item #%d.\n", Item->LineNumber);
             }
         }
         else
         {
-            print("Unable to remove item #%d for some reason. Please debug.", Item->LineNumber);
+            print("Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
         }
     }
     else
@@ -436,17 +542,17 @@ PrioritizeTodoItem(int32 ItemNum, char Priority)
         {
             if (Priority)
             {
-                print("Set the priority of item #%d to %c.", Item->LineNumber, Item->Priority);
+                print("Set the priority of item #%d to %c.\n", Item->LineNumber, Item->Priority);
             }
             else
             {
-                print("Deprioritized item #%d.", Item->LineNumber, Item->Priority);
+                print("Deprioritized item #%d.\n", Item->LineNumber, Item->Priority);
             }
         }
     }
     else
     {
-        print("Unable to find item #%d.", ItemNum);
+        print("Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -464,17 +570,17 @@ SetTodoItemCompletion(int32 ItemNum, bool32 Complete)
 
         if (SaveTodoFile(Todo))
         {
-            print("Completed item #%d.", Item->LineNumber, Item->Priority);
+            print("Completed item #%d.\n", Item->LineNumber, Item->Priority);
         }
     }
     else
     {
-        print("Unable to find item #%d.", ItemNum);
+        print("Unable to find item #%d.\n", ItemNum);
     }
 }
 
 void
-EditTodoItem(int32 ItemNum, size_t NewTextLength, char* NewText)
+EditTodoItem(int32 ItemNum, string NewText)
 {
     todo_file Todo = GetTodoFile();
 
@@ -483,16 +589,15 @@ EditTodoItem(int32 ItemNum, size_t NewTextLength, char* NewText)
     {  
         todo_item* Item = &Todo.Items[ItemIndex];
         Item->Body = NewText;
-        Item->BodyLength = NewTextLength;
 
         if (SaveTodoFile(Todo))
         {
-            print("Edited item #%d.", Item->LineNumber, Item->Body, Item->Priority);
+            print("Edited item #%d.\n", Item->LineNumber);
         }
     }
     else
     {
-        print("Unable to find item #%d.", ItemNum);
+        print("Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -513,7 +618,7 @@ void
 ArchiveCompletedItems()
 {
     todo_file Todo = GetTodoFile();
-    todo_file Done = GetDoneFile();
+    todo_file Done = GetDoneFile(Todo.Filename);
 
     uint32 AllCompletedItems = Done.NumberOfItems + CountCompletedItems(Todo);
     todo_item* CompletedItemList = (todo_item*)PlatformAllocMemory(AllCompletedItems * sizeof(todo_item));
@@ -535,9 +640,10 @@ ArchiveCompletedItems()
             Todo.Items[i] = Todo.Items[Todo.NumberOfItems - 1];
             Todo.NumberOfItems -= 1;
             ++RunningNumCompletedItems;
+			--i;
         }
     }
-
+    Assert(RunningNumCompletedItems == AllCompletedItems);
     Done.Items = CompletedItemList;
     Done.NumberOfItems = AllCompletedItems;
 
@@ -545,162 +651,253 @@ ArchiveCompletedItems()
     {
         if (SaveTodoFile(Todo))
         {
-            print("Archived the completed items.");
+            print("Archived the completed items.\n");
         }
     }
 }
 
-internal int 
+internal parse_args_result 
 ParseArgs(int argc, char* argv[])
 {
-    foreach(argc, argv, char*, it)
+    parse_args_result Result = {};
+    int32 CommandIndex = -1;
+    for (int32 i = 1;
+        i < argc;
+        ++i)
     {
-        print(it);
-    }
-}
+        char* Arg = argv[i];
 
-
-internal int 
-RunFromArguments(int argc, char* argv[])
-{
-    if (argc < 2) { return 0; }
-
-    // char* call = argv[0]; // name of the program that was called. Not really important (for now)
-    char* Command = argv[1]; // name of command passed
-    char* CommandArg1 = "";
-    char* CommandArg2 = "";
-    if (argc > 2) {
-        CommandArg1 = argv[2];
-    } 
-    if (argc > 3) {
-        CommandArg2 = argv[3];
-    }
-
-    if (CompareStrings(Command, "ls") or CompareStrings(Command, "list"))
-    {
-        ListTodoItems();
-        return 0;
-    }
-
-    if (CompareStrings(Command, "a") or CompareStrings(Command, "add"))
-    {
-        if (CommandArg1)
+        if (Arg[0] == '-' || Arg[0] == '/')
         {
-            AddTodoItem(CommandArg1);
-            return 0;
-        }
-        
-        //Default:
-        print("Please specify a valid thing to add.");
-        return 0;
-    }
+            if (Arg[1] == 'n') { Result.Flags |= FLAG_REMOVE_BLANK_LINES; }
+            if (Arg[1] == 'h') { Result.Flags |= FLAG_HELP; }
 
-    if (CompareStrings(Command, "edit") or CompareStrings(Command, "replace"))
-    {
-        if (CommandArg1)
-        {
-            integer_parse_result Parsed = ParseInteger(StringLength(CommandArg1), CommandArg1);
-            if (Parsed.Valid) 
+            if (Arg[1] == '-')
             {
-                if (CommandArg2)
-                {
-                    EditTodoItem((int32)Parsed.Value, StringLength(CommandArg2), CommandArg2);
-                    return 0;
+                char* Word = (Arg + 2);
+                if (CompareStrings(Word, "help")) { Result.Flags |= FLAG_HELP; }
+            }
+        }
+        else
+        {
+            // Doesn't start with " or /, so it's either a command or an arg to a command
+            if (CommandIndex < 0)
+            {
+                if (CompareStrings(Arg, "ls") 
+                 || CompareStrings(Arg, "list")) 
+                { 
+                    Result.Command = CMD_LIST; 
                 }
-            }
-        }
-        
-        //Default:
-        print("Please specify a valid thing to edit.");
-        return 0;
-    }
-
-    if (CompareStrings(Command, "rm") or CompareStrings(Command, "del") or CompareStrings(Command, "remove"))
-    {
-        if (CommandArg1)
-        {
-            integer_parse_result Parsed = ParseInteger(StringLength(CommandArg1), CommandArg1);
-            if (Parsed.Valid) 
-            {
-                RemoveTodoItem((int32)Parsed.Value);
-                return 0;
-            }
-        }
-        
-        //Default:
-        print("Please specify a valid item number to remove.");
-        return 0;
-    }
-
-    if (CompareStrings(Command, "p") or CompareStrings(Command, "pri") or CompareStrings(Command, "prioritize"))
-    {        
-        if (CommandArg1)
-        {
-            integer_parse_result Parsed = ParseInteger(StringLength(CommandArg1), CommandArg1);
-            if (Parsed.Valid) 
-            {
-                if (CommandArg2 and IsValidPriority(*CommandArg2))
+                else if (CompareStrings(Arg, "a")
+                      || CompareStrings(Arg, "add")) 
+                { 
+                    Result.Command = CMD_ADD; 
+                }
+                else if (CompareStrings(Arg, "edit")
+                      || CompareStrings(Arg, "replace")) 
+                { 
+                    Result.Command = CMD_EDIT; 
+                }
+                else if (CompareStrings(Arg, "rm") 
+                      || CompareStrings(Arg, "del")
+                      || CompareStrings(Arg, "remove"))
                 {
-                    PrioritizeTodoItem((int32)Parsed.Value, *CommandArg2);
-                    return 0;
+                    Result.Command = CMD_REMOVE; 
+                }
+                else if (CompareStrings(Arg, "p")
+                      || CompareStrings(Arg, "pri")
+                      || CompareStrings(Arg, "prioritize"))
+                {
+                    Result.Command = CMD_PRIORITIZE;
+                }
+                else if (CompareStrings(Arg, "dp")
+                      || CompareStrings(Arg, "depri")
+                      || CompareStrings(Arg, "deprioritize"))
+                {
+                    Result.Command = CMD_DEPRIORITIZE;
+                }
+                else if (CompareStrings(Arg, "do")
+                      || CompareStrings(Arg, "did")
+                      || CompareStrings(Arg, "complete")
+                      || CompareStrings(Arg, "finish"))
+                {
+                    Result.Command = CMD_COMPLETE;
+                }
+                else if (CompareStrings(Arg, "ar")
+                      || CompareStrings(Arg, "archive"))
+                {
+                    Result.Command = CMD_ARCHIVE;
+                }
+                else if (CompareStrings(Arg, "help")
+                      || CompareStrings(Arg, "h"))
+                {
+                    Result.Command = CMD_HELP;
                 }
                 else
                 {
-                    print("Please enter a valid item priority (A-Z).");
-                    return 0;
+                    Result.Command = CMD_UNKNOWN;
+                }
+
+                CommandIndex = i;
+            }
+            else
+            {
+                parse_int_result IntegerParse = ParseInteger(StringLength(Arg), Arg);
+                if (IntegerParse.Valid)
+                {
+                    Assert(Result.NumericArgCount < 10);
+                    Result.NumericArgs[Result.NumericArgCount] = (int32)IntegerParse.Value;
+                    Result.NumericArgCount += 1;
+                }
+                else
+                {
+                    //TODO(chronister) Should the string args array be dynamic?
+                    Assert(Result.StringArgCount < 10);
+                    Result.StringArgs[Result.StringArgCount] = Arg;
+                    Result.StringArgCount += 1;
                 }
             }
         }
-        
-        //Default:
-        print("Please specify a valid item number to prioritize.");
-        return 0;
     }
 
-    if (CompareStrings(Command, "dp") or CompareStrings(Command, "depri") or CompareStrings(Command, "deprioritize"))
-    {        
-        if (CommandArg1)
-        {
-            integer_parse_result Parsed = ParseInteger(StringLength(CommandArg1), CommandArg1);
-            if (Parsed.Valid) 
-            {
-                PrioritizeTodoItem((int32)Parsed.Value, 0);
-                return 0;
-            }
-        }
-        
-        //Default:
-        print("Please specify a valid item number to deprioritize.");
-        return 0;
-    }
+    return Result;
+}
 
-    if (CompareStrings(Command, "do") or CompareStrings(Command, "did") or 
-        CompareStrings(Command, "complete") or CompareStrings(Command, "finish"))
+
+internal int 
+RunFromArguments(parse_args_result Args)
+{
+    char* Usage = "Usage: todo action [task_number] [task_description]";
+    char* Help = "Usage: todo action [task_number] [task_description]\n"
+                 "Keep track of items you need to accomplish, organized by +project and @context\n"
+                  "\n"
+                  "Actions:\n"
+                  "  add|a \"Sleep on large pile of gold +DragonThings @home\"\n"
+                  "  archive\n"
+                  "  del|rm #[ # # ...]\n"
+                  "  depri|dp #[ # # ...]\n"
+                  "  do|complete #[ # # ...]\n"
+                  "  help\n"
+                  "  list|ls\n"
+                  "  pri|p # [A-Z]\n"
+                  "  replace|edit # \"Sleep on even larger pile of gold +DragonThings @home\"\n";
+
+    switch (Args.Command)
     {
-        for (int i = 2;
-            i < argc;
-            ++i)
+        case CMD_LIST:
         {
-            integer_parse_result Parsed = ParseInteger(StringLength(argv[i]), argv[i]);
-            if (Parsed.Valid) 
+            ListTodoItems();
+        } break;
+
+        case CMD_ADD:
+        {
+            foreach(char*, It, Args.StringArgCount, Args.StringArgs)
             {
-                SetTodoItemCompletion((int32)Parsed.Value, true);
-                return 0;
+                AddTodoItem(It);
             }
-            else 
+            if (Args.StringArgCount == 0)
             {
-                print("Couldn't figure out %s.\n", argv[i]);
+                print("Please specify a valid thing to add.\n");
             }
-        }
-        return 0;
+        } break;
+
+        case CMD_EDIT:
+        {
+            if (Args.NumericArgCount == 1)
+            {
+                if (Args.StringArgCount == 1)
+                {
+                    EditTodoItem(Args.NumericArgs[0], LoftCString(Args.StringArgs[0]));
+                }
+                else 
+                {
+                    print("Please supply exactly one string with an edited description.\n");
+                }
+            }
+            else
+            {
+                print("Please supply exactly one item number to edit.\n");
+            }
+        } break;
+
+        case CMD_REMOVE:
+        {
+            foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
+            {
+                RemoveTodoItem(It);
+            }
+            if (Args.NumericArgCount == 0)
+            {
+                print("Please supply at least one item number to remove.\n");
+            }
+        } break;
+
+        case CMD_PRIORITIZE:
+        {
+            if (Args.NumericArgCount == 1)
+            {
+                if (Args.StringArgCount == 1 && IsValidPriority(*(Args.StringArgs[0])))
+                {
+                    PrioritizeTodoItem(Args.NumericArgs[0], *(Args.StringArgs[0]));
+                }
+                else 
+                {
+                    print("Please supply exactly one item priority (A-Z).\n");
+                }
+            }
+            else
+            {
+                print("Please supply exactly one item number to prioritize.\n");
+            }
+        } break;
+
+        case CMD_DEPRIORITIZE:
+        {
+            foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
+            {
+                PrioritizeTodoItem(It, 0);
+            }
+            if (Args.NumericArgCount == 0)
+            {
+                print("Please supply at least one item number to deprioritize.\n");
+            }
+        } break;
+
+        case CMD_COMPLETE:
+        {
+            foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
+            {
+                SetTodoItemCompletion(It, true);
+            }
+            if (Args.NumericArgCount == 0)
+            {
+                print("Please supply at least one item number to deprioritize.\n");
+            }
+        } break;
+
+        case CMD_ARCHIVE:
+        {
+            ArchiveCompletedItems();
+        } break;
+
+        case CMD_HELP:
+        {
+            print(Help);
+        } break;
+
+        default:
+        {
+            if (Args.Flags & FLAG_HELP)
+            {
+                print(Help);
+            }
+            else
+            {
+                print("%s\n"
+                      "Try todo -h for more information.\n", Usage);
+            }
+        } break;
     }
 
-    if (CompareStrings(Command, "ar") or CompareStrings(Command, "archive"))
-    {
-        ArchiveCompletedItems();
-        return 0;
-    }
-
-    print("This will be a help message, later! :D");
     return 0;
 }

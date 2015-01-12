@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"runnin",
+				"RunningNumCompletedItems"
+			],
+			[
+				"depri",
+				"deprioritize"
+			],
+			[
+				"Numer",
+				"NumericArgCount"
+			],
+			[
+				"StringArg",
+				"StringArgCount"
+			],
+			[
+				"Construc",
+				"ConstructLocalFilepath"
+			],
+			[
 				"NewTe",
 				"NewTextLength"
 			],
@@ -259,7 +279,15 @@
 			"file": "code/todo.cpp",
 			"settings":
 			{
-				"buffer_size": 13576,
+				"buffer_size": 24719,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "code/platform_todo.h",
+			"settings":
+			{
+				"buffer_size": 623,
 				"line_ending": "Windows"
 			}
 		},
@@ -267,15 +295,15 @@
 			"file": "code/win32_todo.cpp",
 			"settings":
 			{
-				"buffer_size": 7867,
+				"buffer_size": 4744,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "code/win32_todo.h",
+			"file": "build.bat",
 			"settings":
 			{
-				"buffer_size": 523,
+				"buffer_size": 1688,
 				"line_ending": "Windows"
 			}
 		},
@@ -283,23 +311,15 @@
 			"file": "code/chr.h",
 			"settings":
 			{
-				"buffer_size": 5529,
+				"buffer_size": 5869,
 				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "build/x64/todo.txt",
-			"settings":
-			{
-				"buffer_size": 269,
-				"line_ending": "Unix"
 			}
 		},
 		{
 			"file": "code/todo.h",
 			"settings":
 			{
-				"buffer_size": 499,
+				"buffer_size": 929,
 				"line_ending": "Windows"
 			}
 		}
@@ -307,9 +327,37 @@
 	"build_system": "Packages/User/Batch.sublime-build",
 	"command_palette":
 	{
-		"height": 500.0,
+		"height": 434.0,
 		"selected_items":
 		[
+			[
+				"syntax ci",
+				"Set Syntax: C Improved"
+			],
+			[
+				"set syntax c",
+				"Set Syntax: C"
+			],
+			[
+				"syntax c",
+				"Set Syntax: C++"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"set c",
+				"Set Syntax: C+++"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"browse",
+				"Preferences: Browse Packages"
+			],
 			[
 				"",
 				"ANF: New File"
@@ -319,16 +367,8 @@
 				"ANF: New File"
 			],
 			[
-				"remove",
-				"Package Control: Remove Package"
-			],
-			[
 				"create",
 				"Create file from Template"
-			],
-			[
-				"install",
-				"Package Control: Install Package"
 			],
 			[
 				"new",
@@ -337,10 +377,6 @@
 			[
 				"hex",
 				"Hex Viewer: Show Hex Edit Panel"
-			],
-			[
-				"browse",
-				"Preferences: Browse Packages"
 			],
 			[
 				"folder",
@@ -524,19 +560,30 @@
 	},
 	"expanded_folders":
 	[
-		"/C/dev/test/todo",
-		"/C/dev/test/todo/build",
-		"/C/dev/test/todo/build/x64",
-		"/C/dev/test/todo/code"
+		"/C/dev/util/todo",
+		"/C/dev/util/todo/build",
+		"/C/dev/util/todo/build/x64",
+		"/C/dev/util/todo/code"
 	],
 	"file_history":
 	[
+		"/C/dev/util/todo/build/x64/todo.txt",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/C Improved/C Improved.tmLanguage",
+		"/C/dev/util/todo/build/x64/win32_todo.map",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Colorsublime/themes/KoralGreen.tmTheme",
+		"/C/Programs/SublimeText/3/Packages/C++/C++.tmLanguage",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/C+++.tmLanguage",
+		"/C/Programs/SublimeText/3/Packages/C++/C.tmLanguage",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/C++.sublime-settings",
+		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/C Improved.sublime-settings",
+		"/C/dev/game/hero/code/win32_handmade.cpp",
+		"/C/dev/util/todo/build/x64/done.txt",
+		"/C/dev/util/todo/code/win32_todo.h",
 		"/C/dev/test/todo/build.bat",
 		"/C/dev/test/todo/build/x64/win32_todo.map",
 		"/C/dev/test/todo/build/x64/todo.txt",
 		"/C/dev/test/todo/build/x64/done.txt",
 		"/C/dev/test/todo/code/chr.h",
-		"/C/dev/game/hero/code/win32_handmade.cpp",
 		"/C/dev/game/hero/code/win32_handmade.h",
 		"/C/dev/game/hero/code/handmade.h",
 		"/C/dev/game/hero/code/handmade_platform.h",
@@ -604,7 +651,6 @@
 		"/W/Users/chronal/Desktop/handmade.h",
 		"/W/Users/chronal/AppData/Local/Temp/Temp1_handmade_hero_day_017_source.zip/code/win32_handmade.cpp",
 		"/W/Users/chronal/Desktop/build.bat",
-		"/C/Programs/SublimeText/3/Packages/C++/C++.tmLanguage",
 		"/C/Programs/SublimeText/3/Packages/C++/C++.sublime-settings",
 		"/C/dev/game/hero/build_dbg.bat",
 		"/C/dev/game/hero/build_release.bat",
@@ -615,7 +661,6 @@
 		"/C/dev/game/home/data/2014-12-06.json",
 		"/C/dev/game/DragonHoard/src/com/synchrogames/DragonHoard.as",
 		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/Blacklion Plugins/highlight_code_remarks.py",
-		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Colorsublime/themes/KoralGreen.tmTheme",
 		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
 		"/W/Users/chronal/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
@@ -646,6 +691,28 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"\"",
+			"Result",
+			"EditTodoItem",
+			"|and",
+			"or",
+			"Command,",
+			"Command",
+			"integer_parse_result",
+			"    \n",
+			"\\band\\b",
+			"\\bor\\b",
+			"arg",
+			"patterns",
+			"Array",
+			"print(",
+			"ParseTodo",
+			"StringLength(Path)",
+			"WIN32_",
+			"MAX_PATH",
+			"Filename",
+			"Todo",
+			"string",
 			"Todo->",
 			"char",
 			"Todo",
@@ -751,29 +818,7 @@
 			";\n",
 			"SafetyBytes",
 			"DS_OK",
-			"ExpectedBytes",
-			"AudioWallCock",
-			"Assert(",
-			"GlobalPause",
-			"GlobalRunning",
-			"DWORD Play",
-			"DebugSync",
-			"ByteToLock",
-			"DWORD Play",
-			"BTL",
-			"u",
-			"if (SoundIs",
-			"else",
-			"int PadX",
-			"SoundIsValid",
-			"DWORD Play",
-			"DWORD ",
-			"DebugPlayCursor",
-			"PlayCursor",
-			"Pitch",
-			"DWORD Play",
-			"GlobalSecondaryBuffer",
-			"[GameUpdateHz]"
+			"ExpectedBytes"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -781,6 +826,9 @@
 		"regex": false,
 		"replace_history":
 		[
+			"parse_int_result",
+			"&&",
+			"||",
 			"todo_item",
 			"ACTED",
 			"TileChunkTile",
@@ -829,24 +877,26 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 13576,
+						"buffer_size": 24719,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								11588,
-								11588
+								21101,
+								21101
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.tmLanguage",
+							"spell_check": false,
+							"syntax": "Packages/C Improved/C Improved.tmLanguage",
+							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 10218.0,
+						"translation.y": 16539.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -854,53 +904,23 @@
 				},
 				{
 					"buffer": 1,
-					"file": "code/win32_todo.cpp",
+					"file": "code/platform_todo.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7867,
+						"buffer_size": 623,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6497,
-								6497
+								48,
+								48
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2760.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "code/win32_todo.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 523,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								494,
-								494
-							]
-						],
-						"settings":
-						{
-							"_anf_new": "",
 							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
@@ -911,20 +931,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "code/chr.h",
+					"buffer": 2,
+					"file": "code/win32_todo.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5529,
+						"buffer_size": 4744,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1747,
-								1747
+								4742,
+								4742
 							]
 						],
 						"settings":
@@ -934,10 +954,68 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1973.0,
+						"translation.y": 3544.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "build.bat",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1688,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1056,
+								1056
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Batch File/Batch File.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 794.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "code/chr.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5869,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1937,
+								1937
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 218.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
 					"type": "text"
 				}
 			]
@@ -947,60 +1025,34 @@
 			"sheets":
 			[
 				{
-					"buffer": 4,
-					"file": "build/x64/todo.txt",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 269,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								269,
-								269
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
 					"buffer": 5,
 					"file": "code/todo.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 499,
+						"buffer_size": 929,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								151,
-								151
+								498,
+								498
 							]
 						],
 						"settings":
 						{
 							"_anf_new": "",
-							"syntax": "Packages/C++/C++.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
-						"translation.x": -0.0,
-						"translation.y": 198.0,
+						"translation.x": 14.8029785156,
+						"translation.y": 566.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]

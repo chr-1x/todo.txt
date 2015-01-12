@@ -1,9 +1,4 @@
-x Or don't display blank lines
-x Implement deprioritization
-x Implement prioritization
-x Implement completion
-x Add archival
-x Figure out the sorting bug
-x Todo item editing
-x Figure out why prioritization lists weird stuff on confirmation
-x Format ls output to widest line number
+x asd
+x Test lel
+x hihihih
+x Allah ackbar

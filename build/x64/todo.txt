@@ -1,16 +1,8 @@
-(N) Figure out why removing the last item results in a single line
+(A) u wot m8
 
-(E) Sort non-prioritized items alphabetically
-
-(G) Contexts
-(H) Projects
-
-
-(A) A proper arg parsing system
-(B) Flags
-(Z) Generate todo.txt from a folder full of code
-Experiment with metaprogramming options for C
-
-(C) Support todo.txt files in different locations
-(F) Show line number of added item
-x Add linux support
+(A) sdafdg
+Yolo swag
+Test lol
+Test lul
+Test lil
+Test lal

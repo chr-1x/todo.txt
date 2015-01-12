@@ -19,7 +19,7 @@ set DEBUG= /FC /Z7 /Fm
 set CL_OPTIONS= /nologo %COMPAT% %OPTIMIZATION% %WARNINGS% %DEBUG%
 
 set CODE= ../../code/win32_todo.cpp
-set LIBS= user32.lib gdi32.lib winmm.lib
+set LIBS= user32.lib shell32.lib
 set LINKER_SHARED= /incremental:no /opt:ref 
 set LINKER_64= /link %LINKER_SHARED% /subsystem:console,5.2
 set LINKER_32= /link %LINKER_SHARED% /subsystem:console,5.1
