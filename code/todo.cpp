@@ -400,6 +400,11 @@ SaveDoneFile(todo_file Done)
 void
 ListTodoItems(todo_file Todo)
 {
+    if (Todo.NumberOfItems <= 0)
+    {
+        printf("No items to do\n");
+        return;
+    }
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
     foreach(todo_item, Line, Todo.NumberOfItems, Todo.Items)
     {

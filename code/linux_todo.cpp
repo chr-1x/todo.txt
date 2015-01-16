@@ -5,7 +5,7 @@
 
 
 #include "cstdlib"
-//TODO(chronister): Low level linux allocation?
+//TODO(chronister): Low level linux allocation?`
 internal void* 
 PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
@@ -20,18 +20,39 @@ PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
 }
 internal void* PlatformAllocMemory(size_t BytesToAlloc) { return PlatformAllocMemory(BytesToAlloc, true); }
 
-internal void
+internal bool32
 PlatformFreeMemory(void* Memory)
 {
 	free(Memory);
+	return true; //TODO(chronister): Is there any way to tell if this worked?
+}
+
+internal bool32
+PlatformFileExists(char* Filename)
+{
+	return (open(Filename, O_RDONLY) >= 0);
+}
+
+internal string
+PlatformGetUserDir()
+{
+	string Result;
+	struct passwd* pw = getpwuid(getuid());
+	
+	size_t PathLen = StringLength(pw->pw_dir);
+	Result.Length = PathLen + 1;
+	Result.Value = (char*)PlatformAllocMemory(Result.Length);
+	CopyString(PathLen, pw->pw_dir, PathLen, Result.Value);
+	CatStrings(PathLen, Result.Value, 1, "/", Result.Length, Result.Value);
+	return Result;
 }
 
 internal read_file_result
 PlatformReadEntireFile(char* Filename)
 {
-	read_file_result Result = {};
-	int fd = open(Filename, O_RDONLY);
-	struct stat file_info;
+	read_file_result Result = {0};
+	int fd = open(Filename, O_RDONLY|O_CREAT);
+	struct stat file_info = {0};
 	fstat (fd, &file_info);
 	Result.ContentsSize = file_info.st_size;
 	Result.Contents = (char*)PlatformAllocMemory(Result.ContentsSize);
@@ -60,5 +81,5 @@ PlatformWriteEntireFile(char* Filename, size_t StringSize, char* StringToWrite)
 
 int main(int argc, char* argv[])
 {
-	return RunFromArguments(argc, argv);
+	return RunFromArguments(ParseArgs(argc, argv));
 }

@@ -9,6 +9,6 @@ cd build
 cd x64
 
 # TODO: Proper build script
-gcc ../../code/linux_todo.cpp -o todo
+gcc ../../code/linux_todo.cpp -o todo -ggdb
 
 echo Build Complete

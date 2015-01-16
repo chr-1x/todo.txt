@@ -281,7 +281,7 @@ ParseInteger(int32 TextLength, char* Text)
     #include "sys/stat.h"
     #include "sys/types.h"
     #include "unistd.h"
-
+    #include "pwd.h"
     
 
 #endif
