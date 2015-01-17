@@ -646,7 +646,7 @@ ArchiveCompletedItems()
     Assert(RunningNumCompletedItems == AllCompletedItems);
     Done.Items = CompletedItemList;
     Done.NumberOfItems = AllCompletedItems;
-
+    
     if (SaveDoneFile(Done))
     {
         if (SaveTodoFile(Todo))

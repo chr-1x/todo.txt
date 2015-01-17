@@ -1,0 +1,9 @@
+{
+	"cmd": "build.sh",
+	"working_dir": "$project_path",
+	"file_regex": "^(..[^:]*)\\(([0-9]+)\\)",
+
+	"windows": {
+		"cmd": "build.bat"
+	}
+}
