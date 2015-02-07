@@ -18,7 +18,6 @@ PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
 		return malloc(BytesToAlloc);
 	}
 }
-internal void* PlatformAllocMemory(size_t BytesToAlloc) { return PlatformAllocMemory(BytesToAlloc, true); }
 
 internal bool32
 PlatformFreeMemory(void* Memory)

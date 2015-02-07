@@ -227,6 +227,11 @@ ParseTodoLine(int32 LineNum, string Line)
         Item.Body.Value += 2;
     }
 
+    if (Item.Body.Length > 0 && Item.Body.Value[Item.Body.Length - 1] == '\r')
+    {
+        Item.Body.Length -= 1;
+    }
+
     return Item;
 }
 
@@ -397,8 +402,13 @@ SaveDoneFile(todo_file Done)
     return PlatformWriteEntireFile(Done.Filename.Value, Serialized.ContentsSize, Serialized.Contents);
 }
 
+bool32 ItemMatchesQuery(todo_item* Item, string* Query)
+{
+    return StringIndexOf(Item->Body.Value, Query->Value) >= 0;
+}
+
 void
-ListTodoItems(todo_file Todo)
+ListTodoItems(todo_file Todo, string* Query=0)
 {
     if (Todo.NumberOfItems <= 0)
     {
@@ -409,6 +419,14 @@ ListTodoItems(todo_file Todo)
     foreach(todo_item, Line, Todo.NumberOfItems, Todo.Items)
     {
         if (Line.Body.Length <= 1) { continue; } // Don't display blank lines
+
+        if (Query)
+        {
+            if (!ItemMatchesQuery(&Line, Query))
+            {
+                continue;
+            }
+        }
 
         int32 LineWidth = Log10(Line.LineNumber);
         for (int i = 0;
@@ -433,11 +451,11 @@ ListTodoItems(todo_file Todo)
     }
 }
 void
-ListTodoItems()
+ListTodoItems(string* Query=0)
 {
     todo_file Todo = GetTodoFile();
     SortTodoItemList(Todo.NumberOfItems, Todo.Items, &CompareTodoItemPriority);
-    ListTodoItems(Todo);
+    ListTodoItems(Todo, Query);
 }
 
 int64
@@ -661,6 +679,35 @@ ArchiveCompletedItems()
     }
 }
 
+void
+AddKeyword(int32 ItemNum, string Keyword)
+{
+    todo_file Todo = GetTodoFile();
+
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
+    if (ItemIndex >= 0)
+    {  
+        todo_item* Item = &Todo.Items[ItemIndex];
+        Item->Body = CatStrings(Item->Body, LoftCString(" "));
+        Item->Body = CatStrings(Item->Body, Keyword);
+
+        if (SaveTodoFile(Todo))
+        {
+            print("Added %s item #%d.\n", Keyword.Value, Item->LineNumber);
+        }
+    }
+    else
+    {
+        print("Unable to find item #%d.\n", ItemNum);
+    }
+}
+
+void
+RemoveKeyword(int32 ItemNum, string* Keyword=0)
+{
+    print("TODO: Not implemented, needs string.replace()\n");
+}
+
 internal parse_args_result 
 ParseArgs(int argc, char* argv[])
 {
@@ -738,6 +785,32 @@ ParseArgs(int argc, char* argv[])
                 {
                     Result.Command = CMD_HELP;
                 }
+                else if (CompareStrings(Arg, "addproject")
+                      || CompareStrings(Arg, "addproj")
+                      || CompareStrings(Arg, "ap")
+                      || CompareStrings(Arg, "addcontext")
+                      || CompareStrings(Arg, "addcon")
+                      || CompareStrings(Arg, "ac")
+                      || CompareStrings(Arg, "addkeyword")
+                      || CompareStrings(Arg, "addkw")
+                      || CompareStrings(Arg, "akw")
+                      || CompareStrings(Arg, "append")
+                      || CompareStrings(Arg, "app"))
+                {
+                    Result.Command = CMD_ADD_KW;
+                }
+                else if (CompareStrings(Arg, "removeproject")
+                      || CompareStrings(Arg, "rmproj")
+                      || CompareStrings(Arg, "rp")
+                      || CompareStrings(Arg, "removecontext")
+                      || CompareStrings(Arg, "rmcon")
+                      || CompareStrings(Arg, "rc")
+                      || CompareStrings(Arg, "removekeyword")
+                      || CompareStrings(Arg, "rmkw")
+                      || CompareStrings(Arg, "rkw"))
+                {
+                    Result.Command = CMD_REMOVE_KW;
+                }
                 else
                 {
                     Result.Command = CMD_UNKNOWN;
@@ -783,7 +856,7 @@ RunFromArguments(parse_args_result Args)
                   "  depri|dp #[ # # ...]\n"
                   "  do|complete #[ # # ...]\n"
                   "  help\n"
-                  "  list|ls\n"
+                  "  list|ls [query]\n"
                   "  pri|p # [A-Z]\n"
                   "  replace|edit # \"Sleep on even larger pile of gold +DragonThings @home\"\n";
 
@@ -791,7 +864,15 @@ RunFromArguments(parse_args_result Args)
     {
         case CMD_LIST:
         {
-            ListTodoItems();
+            if (Args.StringArgCount > 0)
+            {
+                string Query = LoftCString(Args.StringArgs[0]);
+                ListTodoItems(&Query);
+            }
+            else
+            {
+                ListTodoItems();
+            }
         } break;
 
         case CMD_ADD:
@@ -883,6 +964,45 @@ RunFromArguments(parse_args_result Args)
         case CMD_ARCHIVE:
         {
             ArchiveCompletedItems();
+        } break;
+
+        case CMD_ADD_KW:
+        {
+            if (Args.NumericArgCount == 1 && Args.StringArgCount >= 1)
+            {
+                foreach(char*, It, Args.StringArgCount, Args.StringArgs)
+                {
+                    string Keyword = LoftCString(It);
+                    AddKeyword(Args.NumericArgs[0], Keyword);
+                }
+            }
+            else
+            {
+                print("Please specify exactly one item number and at least one project, context, or keyword to add.\n");
+            }
+        } break;
+
+        case CMD_REMOVE_KW:
+        {
+            if (Args.NumericArgCount == 1)
+            {
+                if (Args.StringArgCount == 0)
+                {
+                    RemoveKeyword(Args.NumericArgs[0]);
+                }
+                else
+                {
+                    foreach(char*, It, Args.StringArgCount, Args.StringArgs)
+                    {
+                        string Keyword = LoftCString(It);
+                        RemoveKeyword(Args.NumericArgs[0], &Keyword);
+                    }
+                }
+            }
+            else
+            {
+                print("Please specify exactly one item number.\n");
+            }
         } break;
 
         case CMD_HELP:

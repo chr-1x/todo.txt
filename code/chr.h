@@ -177,19 +177,35 @@ CopyString(size_t SourceCount, char* Source, size_t DestCount, char* Dest)
     *Dest++ = 0;
 }
 
-/*
+
 int32
 StringIndexOf(char* Haystack, char* Needle)
 {
-    char* Start = null;
+    int NeedleIndex = 0;
+    int NeedleLength = StringLength(Needle);
+
     for (int i = 0;
         Haystack[i];
         ++i)
     {
-        if (String1[i] != String2[i]) { return false; }
+        if (Haystack[i] == Needle[NeedleIndex])
+        {
+            ++NeedleIndex;
+            if (NeedleIndex >= NeedleLength)
+            {
+                return (i+1) - NeedleLength;
+            }
+        }
+        else 
+        {
+            if (NeedleIndex > 0)
+            {
+                NeedleIndex = 0;
+            }
+        }
     }
     return -1;
-}*/
+}
 
 /* =====================
       Number Parsing 

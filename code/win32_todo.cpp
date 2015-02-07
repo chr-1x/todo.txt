@@ -9,8 +9,6 @@ PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
     return HeapAlloc(MyHeap, ZeroTheMemory ? HEAP_ZERO_MEMORY : 0, BytesToAlloc);
 }
-//NOTE(chronister): Default behavior: Don't zero it.
-internal void* PlatformAllocMemory(size_t BytesToAlloc) { return PlatformAllocMemory(BytesToAlloc, false); }
 
 internal bool32
 PlatformFreeMemory(void* Memory)

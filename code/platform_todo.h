@@ -4,8 +4,7 @@
 
 
 internal void* 
-PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory);
-internal void* PlatformAllocMemory(size_t BytesToAlloc);
+PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory=false);
 
 internal bool32
 PlatformFreeMemory(void* Memory);
