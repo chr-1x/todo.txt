@@ -1,11 +1,5 @@
 #if !defined(TODO_H)
 
-//TODO(chronister): Move this out into a standard header?
-struct string
-{
-	uint32 Length;
-	char* Value;
-};
 
 struct todo_item
 {
@@ -42,7 +36,11 @@ enum command
     CMD_ARCHIVE,
     CMD_HELP,
     CMD_ADD_KW,
-    CMD_REMOVE_KW
+    CMD_ADD_PROJ,
+    CMD_ADD_CTX,
+    CMD_REMOVE_KW,
+    CMD_REMOVE_PROJ,
+    CMD_REMOVE_CTX
 };
 #define FLAG_HELP 0x00000001
 #define FLAG_REMOVE_BLANK_LINES 0x00000010
