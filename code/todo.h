@@ -1,12 +1,5 @@
 #if !defined(TODO_H)
 
-//TODO(chronister): Move this out into a standard header?
-struct string
-{
-	uint32 Length;
-	char* Value;
-};
-
 struct todo_item
 {
     uint32 LineNumber;
