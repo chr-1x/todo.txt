@@ -14,7 +14,7 @@ set EXE_NAME=todo.exe
 
 set COMPAT= /MTd
 set OPTIMIZATION= /Gm- /GR- /EHa- /Od /Oi
-set WARNINGS= /WX /W4 /wd4201 /wd4100 /wd4189 /wd4505
+set WARNINGS= /WX /W4 /wd4201 /wd4100 /wd4189 /wd4505 /wd4706
 set DEBUG= /FC /Z7 /Fm
 set CL_OPTIONS= /nologo %COMPAT% %OPTIMIZATION% %WARNINGS% %DEBUG%
 

@@ -1,11 +1,3 @@
-(A) u wot m8
-
-(A) sdafdg
-Yolo swag @grill
-Test lol
-Test lul
-Test lil +Testing
-Test lal +Testing
-Whatup dog +Testing @hood
-Heyo +greetings +salutations
-A test +project
+Do a thing project2 +project2
+Test +  +fruit +pomme
+Change remove keyword to ensure that there is a space before the keyword

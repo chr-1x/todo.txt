@@ -1,3 +1,5 @@
+#include "chr.h"
+#include "chr_string.h"
 #include "platform_todo.h"
 
 /* Example usage:
@@ -13,45 +15,17 @@
 global_variable char* TodoBasename = "todo.txt";
 global_variable char* DoneBasename = "done.txt";
 
-//TODO(chronister): Move up into chr.h?
-string 
-CatStrings(string String1, string String2)
+void* 
+Alloc(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
-    string Result;
-    Result.Length = String1.Length + String2.Length;
-    Result.Value = (char*)PlatformAllocMemory(Result.Length);
-    CatStrings(String1.Length, String1.Value, String2.Length, String2.Value, Result.Length, Result.Value);
-    return Result;
+    return PlatformAllocMemory(BytesToAlloc, ZeroTheMemory);
 }
 
-string
-CopyString(string Source)
+bool32
+Free(void* Memory)
 {
-    string Dest;
-    Dest.Length = Source.Length;
-    Dest.Value = (char*)PlatformAllocMemory(Dest.Length);
-    CopyString(Source.Length, Source.Value, Dest.Length, Dest.Value);
-    return Dest;
+    return PlatformFreeMemory(Memory);
 }
-
-//NOTE(chronister): As the name implies, this assumes your string is null-terminated!
-string
-LoftCString(char* CString)
-{
-    string Result;
-    Result.Length = StringLength(CString);
-    Result.Value = CString;
-    return Result;
-}
-
-void
-FreeString(string* Str)
-{
-    PlatformFreeMemory(Str->Value);
-    Str->Length = 0;
-    Str->Value = 0;
-}
-
 //NOTE(chronister): This function returns whether or not Filename was found
 // in either pwd or user home dir. If it wasn't (returns false), the program
 // should probably query if it should be created, and create it.
@@ -101,7 +75,7 @@ ReplaceFilenameInFilepath(string Filepath, string ReplacementName)
 internal string
 GetTodoFilename()
 {
-    string TodoStr = LoftCString(TodoBasename);
+    string TodoStr = STR(TodoBasename);
     return ConstructLocalFilepath(TodoStr);
 }
 
@@ -110,7 +84,7 @@ GetDoneFilename(string TodoFilename)
 {
     //TODO(chronister): This should be in the same place as the todo.txt given the same context
     // So it needs a way to know which todo.txt is active and use the same directory as that. 
-    string DoneStr = ReplaceFilenameInFilepath(TodoFilename, LoftCString(DoneBasename));
+    string DoneStr = ReplaceFilenameInFilepath(TodoFilename, STR(DoneBasename));
     return DoneStr;
 }
 
@@ -688,7 +662,7 @@ AddKeyword(int32 ItemNum, string Keyword)
     if (ItemIndex >= 0)
     {  
         todo_item* Item = &Todo.Items[ItemIndex];
-        Item->Body = CatStrings(Item->Body, LoftCString(" "));
+        Item->Body = CatStrings(Item->Body, STR(" "));
         Item->Body = CatStrings(Item->Body, Keyword);
 
         if (SaveTodoFile(Todo))
@@ -703,9 +677,67 @@ AddKeyword(int32 ItemNum, string Keyword)
 }
 
 void
-RemoveKeyword(int32 ItemNum, string* Keyword=0)
+RemoveKeyword(int32 ItemNum, string Keyword)
 {
-    print("TODO: Not implemented, needs string.replace()\n");
+    
+    todo_file Todo = GetTodoFile();
+
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
+    if (ItemIndex >= 0)
+    {  
+        todo_item* Item = &Todo.Items[ItemIndex];
+
+        if (*(Keyword.Value))
+        {
+            if (Keyword.Length == 1)
+            {
+                if (*Keyword.Value == '+' || *Keyword.Value == '@')
+                {
+                    int64 StartIndex = StringIndexOf(Item->Body.Value, Keyword.Value);
+                    int64 EndIndex = StringIndexOf(Item->Body.Value, " ", StartIndex);
+
+                    if (StartIndex >= 0 && EndIndex >= 0)
+                    {
+                        Assert(EndIndex > StartIndex);
+                        
+                        Keyword = CopyString(Item->Body);
+                        Keyword.Value[EndIndex] = '\0';
+                        Keyword.Value += StartIndex;
+                        Keyword.Length = EndIndex - StartIndex;
+                    }
+                }
+            }
+
+            int Replacements = StringReplace(&Item->Body, Keyword, STR(""));
+            
+            if (Replacements > 0) 
+            {
+                if (SaveTodoFile(Todo))
+                {
+                    if (Replacements == 1)
+                    {
+                        print("Removed %s from item #%d.\n", Keyword.Value, Item->LineNumber);
+                    }
+                    else
+                    {
+                        print("Removed %d instances of %s from item #%d.\n", Replacements, Keyword.Value, Item->LineNumber);
+                    }
+                }
+            }
+            else
+            {
+                print("Couldn't find %s in item #%d.\n", Keyword.Value, Item->LineNumber);
+            }
+        }
+        else 
+        {
+            print("Item #%d not updated, invalid keyword.\n", ItemNum);
+        }
+    }
+    else
+    {
+        print("Unable to find item #%d.\n", ItemNum);
+    }
 }
 
 internal parse_args_result 
@@ -785,13 +817,7 @@ ParseArgs(int argc, char* argv[])
                 {
                     Result.Command = CMD_HELP;
                 }
-                else if (CompareStrings(Arg, "addproject")
-                      || CompareStrings(Arg, "addproj")
-                      || CompareStrings(Arg, "ap")
-                      || CompareStrings(Arg, "addcontext")
-                      || CompareStrings(Arg, "addcon")
-                      || CompareStrings(Arg, "ac")
-                      || CompareStrings(Arg, "addkeyword")
+                else if (CompareStrings(Arg, "addkeyword")
                       || CompareStrings(Arg, "addkw")
                       || CompareStrings(Arg, "akw")
                       || CompareStrings(Arg, "append")
@@ -799,17 +825,35 @@ ParseArgs(int argc, char* argv[])
                 {
                     Result.Command = CMD_ADD_KW;
                 }
-                else if (CompareStrings(Arg, "removeproject")
-                      || CompareStrings(Arg, "rmproj")
-                      || CompareStrings(Arg, "rp")
-                      || CompareStrings(Arg, "removecontext")
-                      || CompareStrings(Arg, "rmcon")
-                      || CompareStrings(Arg, "rc")
-                      || CompareStrings(Arg, "removekeyword")
+                else if (CompareStrings(Arg, "addproject")
+                      || CompareStrings(Arg, "addproj")
+                      || CompareStrings(Arg, "ap"))
+                {
+                    Result.Command = CMD_ADD_PROJ;
+                }
+                else if (CompareStrings(Arg, "addcontext")
+                      || CompareStrings(Arg, "addcon")
+                      || CompareStrings(Arg, "ac"))
+                {
+                    Result.Command = CMD_ADD_CTX;
+                }
+                else if (CompareStrings(Arg, "removekeyword")
                       || CompareStrings(Arg, "rmkw")
                       || CompareStrings(Arg, "rkw"))
                 {
                     Result.Command = CMD_REMOVE_KW;
+                }
+                else if (CompareStrings(Arg, "removeproject")
+                      || CompareStrings(Arg, "rmproj")
+                      || CompareStrings(Arg, "rp"))
+                {
+                    Result.Command = CMD_REMOVE_PROJ;
+                }
+                else if (CompareStrings(Arg, "removecontext")
+                      || CompareStrings(Arg, "rmcon")
+                      || CompareStrings(Arg, "rc"))
+                {
+                    Result.Command = CMD_REMOVE_CTX;
                 }
                 else
                 {
@@ -866,7 +910,7 @@ RunFromArguments(parse_args_result Args)
         {
             if (Args.StringArgCount > 0)
             {
-                string Query = LoftCString(Args.StringArgs[0]);
+                string Query = STR(Args.StringArgs[0]);
                 ListTodoItems(&Query);
             }
             else
@@ -893,7 +937,7 @@ RunFromArguments(parse_args_result Args)
             {
                 if (Args.StringArgCount == 1)
                 {
-                    EditTodoItem(Args.NumericArgs[0], LoftCString(Args.StringArgs[0]));
+                    EditTodoItem(Args.NumericArgs[0], STR(Args.StringArgs[0]));
                 }
                 else 
                 {
@@ -967,35 +1011,68 @@ RunFromArguments(parse_args_result Args)
         } break;
 
         case CMD_ADD_KW:
+        case CMD_ADD_PROJ:
+        case CMD_ADD_CTX:
         {
-            if (Args.NumericArgCount == 1 && Args.StringArgCount >= 1)
+            if (Args.NumericArgCount >= 1 && Args.StringArgCount >= 1)
             {
-                foreach(char*, It, Args.StringArgCount, Args.StringArgs)
+                foreach (int, ItemNum, Args.NumericArgCount, Args.NumericArgs)
                 {
-                    string Keyword = LoftCString(It);
-                    AddKeyword(Args.NumericArgs[0], Keyword);
+                    foreach(char*, K, Args.StringArgCount, Args.StringArgs)
+                    {
+                        string Keyword = STR(K);
+                        if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
+                        {
+                            Keyword = CatStrings(STR("+"), Keyword);
+                        }
+                        else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
+                        {
+                            Keyword = CatStrings(STR("@"), Keyword);
+                        }
+
+                        AddKeyword(ItemNum, Keyword);
+                    }
                 }
             }
             else
             {
-                print("Please specify exactly one item number and at least one project, context, or keyword to add.\n");
+                print("Please specify at least one item number and at least one thing to add.\n");
             }
         } break;
 
         case CMD_REMOVE_KW:
+        case CMD_REMOVE_PROJ:
+        case CMD_REMOVE_CTX:
         {
             if (Args.NumericArgCount == 1)
             {
                 if (Args.StringArgCount == 0)
                 {
-                    RemoveKeyword(Args.NumericArgs[0]);
+                    char K = 0;
+                    if (Args.Command == CMD_REMOVE_PROJ)
+                    {
+                        K = '+';
+                    }
+                    else if (Args.Command == CMD_REMOVE_CTX)
+                    {
+                        K = '@';
+                    }
+                    RemoveKeyword(Args.NumericArgs[0], STR(&K));
                 }
                 else
                 {
-                    foreach(char*, It, Args.StringArgCount, Args.StringArgs)
+                    foreach(char*, K, Args.StringArgCount, Args.StringArgs)
                     {
-                        string Keyword = LoftCString(It);
-                        RemoveKeyword(Args.NumericArgs[0], &Keyword);
+                        string Keyword = STR(K);
+                        if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
+                        {
+                            Keyword = CatStrings(STR("+"), Keyword);
+                        }
+                        else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
+                        {
+                            Keyword = CatStrings(STR("@"), Keyword);
+                        }
+                        RemoveKeyword(Args.NumericArgs[0], Keyword);
                     }
                 }
             }
