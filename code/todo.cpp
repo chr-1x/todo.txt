@@ -386,7 +386,7 @@ ListTodoItems(todo_file Todo, string* Query=0)
 {
     if (Todo.NumberOfItems <= 0)
     {
-        printf("No items to do\n");
+        PlatformError("No items to do\n");
         return;
     }
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
@@ -407,20 +407,23 @@ ListTodoItems(todo_file Todo, string* Query=0)
              i < MaxWidth - LineWidth;
              ++i)
         {
-            print(" ");
+            PrintFCB(PrintColor(COLOR_BLACK), PrintColor(COLOR_GREEN), " ");
         }
 
+        PrintFCB(PrintColor(COLOR_BLACK), PrintColor(COLOR_GREEN), "%d:", Line.LineNumber);
         if (Line.Complete)
         {
-            print("%d: x %s\n", Line.LineNumber, Line.Body.Value);
+            PrintF(" x %s\n", Line.Body.Value);
         }
         else if (Line.Priority) 
         {
-            print("%d: (%c) %s\n", Line.LineNumber, Line.Priority, Line.Body.Value);
+            PrintF(" ");
+            PrintFCB(PrintColor(COLOR_BLACK), PrintColor(COLOR_WHITE), "(%c)", Line.Priority);
+            PrintF(" %s\n", Line.Body.Value);
         }
         else
         {
-            print("%d: %s\n", Line.LineNumber, Line.Body.Value);
+            PrintF(" %s\n", Line.Body.Value);
         }
     }
 }
@@ -464,7 +467,11 @@ AddTodoItem(todo_item Item)
     Todo.NumberOfItems += 1;
     if (SaveTodoFile(Todo))
     {
-        print("Added \"%s\" to todo.txt on line %d.\n", Item.Body.Value, Item.LineNumber);
+        PrintF("Added ");
+        PrintFC(PrintColor(COLOR_BLUE, true), "\"%s\"", Item.Body.Value);
+        PrintF(" to todo.txt on line ");
+        PrintFC(PrintColor(COLOR_GREEN), "#%d", Item.LineNumber);
+        PrintF(".\n");
     }
 }
 
@@ -539,7 +546,7 @@ PrioritizeTodoItem(int32 ItemNum, char Priority)
         {
             if (Priority)
             {
-                print("Set the priority of item #%d to %c.\n", Item->LineNumber, Item->Priority);
+                PrintF("Set the priority of item #%d to %c.\n", Item->LineNumber, Item->Priority);
             }
             else
             {
@@ -549,7 +556,7 @@ PrioritizeTodoItem(int32 ItemNum, char Priority)
     }
     else
     {
-        print("Unable to find item #%d.\n", ItemNum);
+        PrintFC(PrintColor(COLOR_RED), "Unable to find item #%d.\n", ItemNum);
     }
 }
 

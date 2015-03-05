@@ -1,8 +1,11 @@
 #include "chr.h"
 #include "todo.cpp"
+#include "stdarg.h"
 
 global_variable HANDLE MyHeap;
-
+global_variable HANDLE ConsoleOut;
+global_variable HANDLE ConsoleIn;
+global_variable HANDLE ConsoleError;
 
 internal void* 
 PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
@@ -174,9 +177,94 @@ PlatformWriteEntireFile(char* Filepath, size_t StringSize, char* StringToWrite)
     return(Result);
 }
 
+internal int16
+PrintColorToWinColor(print_color PrintColor, bool32 IsForeground)
+{
+    int16 ResultColor = 0;
+    switch(PrintColor.Color)
+    {
+        case COLOR_RED: 
+        case COLOR_YELLOW:
+        case COLOR_MAGENTA:
+        case COLOR_WHITE:
+        {
+            ResultColor |= (IsForeground ? FOREGROUND_RED : BACKGROUND_RED);
+        }
+    }
+    switch(PrintColor.Color)
+    {
+        case COLOR_YELLOW: 
+        case COLOR_GREEN:
+        case COLOR_CYAN:
+        case COLOR_WHITE:
+        {
+            ResultColor |= (IsForeground ? FOREGROUND_GREEN : BACKGROUND_GREEN);
+        } break;
+    }
+    switch(PrintColor.Color)
+    {
+        case COLOR_CYAN: 
+        case COLOR_BLUE:
+        case COLOR_MAGENTA:
+        case COLOR_WHITE:
+        {
+            ResultColor |= (IsForeground ? FOREGROUND_BLUE : BACKGROUND_BLUE);
+        } break;
+    }
+    return ResultColor;
+}
+
+internal bool32
+PlatformPrint(print_color ForegroundColor, print_color BackgroundColor, size_t Length, char* String)
+{
+    int16 WinFgColor = (ForegroundColor.IsIntense ? FOREGROUND_INTENSITY : 0);
+    int16 WinBgColor = (BackgroundColor.IsIntense ? BACKGROUND_INTENSITY : 0);
+    WinFgColor |= PrintColorToWinColor(ForegroundColor, true);
+    WinBgColor |= PrintColorToWinColor(BackgroundColor, false);
+
+    SetConsoleTextAttribute(ConsoleOut, WinFgColor | WinBgColor);
+    uint32 CharsWritten;
+    bool32 Result = WriteConsole(ConsoleOut, String, (uint32)Length, (LPDWORD)&CharsWritten, NULL);
+    SetConsoleTextAttribute(ConsoleOut, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
+    
+    return Result && CharsWritten == Length;
+}
+
+internal bool32
+PlatformPrintFormatted(print_color ForegroundColor, print_color BackgroundColor, char* FormatString, ...)
+{
+    size_t Length = StringLength(FormatString);
+    char* ScratchBuffer = (char*)PlatformAllocMemory(Max(Length*2, 256), false);
+    
+    va_list args;
+    va_start(args, FormatString);
+    vsprintf_s(ScratchBuffer, Max(Length*2, 256), FormatString, args);
+    va_end(args);
+
+    PlatformFreeMemory(ScratchBuffer);
+
+    return PlatformPrint(ForegroundColor, BackgroundColor, StringLength(ScratchBuffer), ScratchBuffer);
+}
+
+internal bool32
+PlatformError(char* ErrorMessage)
+{
+    size_t ErrorLength = StringLength(ErrorMessage);
+    SetConsoleTextAttribute(ConsoleError, FOREGROUND_RED);
+    uint32 CharsWritten;
+    bool32 Result = WriteConsole(ConsoleError, ErrorMessage, (uint32)ErrorLength, (LPDWORD)&CharsWritten, NULL);
+    SetConsoleTextAttribute(ConsoleError, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
+    
+    return Result && CharsWritten == ErrorLength;
+}
+
 
 int main(int argc, char* argv[])
 {
     MyHeap = GetProcessHeap();
+    ConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
+    ConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    ConsoleError = GetStdHandle(STD_ERROR_HANDLE);
+
     RunFromArguments(ParseArgs(argc, argv));
 }

@@ -1,3 +1,5 @@
-Do a thing project2 +project2
-Test +  +fruit +pomme
+(A) Do a thing project2 +project2
 Change remove keyword to ensure that there is a space before the keyword
+It's a thing
+It's another thing
+Test++fruit+pomme
