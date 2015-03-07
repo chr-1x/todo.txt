@@ -24,12 +24,12 @@ internal bool32
 PlatformWriteEntireFile(char* Filename, size_t StringSize, char* StringToWrite);
 
 internal bool32
-PlatformPrintColored(size_t Length, char* String);
+PlatformColorPrint(size_t Length, char* String);
 
 internal bool32
-PlatformPrintFormatted(char* FormatString, ...);
+PlatformColorPrintFormatted(char* FormatString, ...);
 
-#define PrintF PlatformPrintFormatted
+#define PrintFC PlatformColorPrintFormatted
 
 internal bool32
 PlatformError(char* ErrorMessage);

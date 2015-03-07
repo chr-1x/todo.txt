@@ -386,7 +386,7 @@ ListTodoItems(todo_file Todo, string* Query=0)
 {
     if (Todo.NumberOfItems <= 0)
     {
-        PrintF("|r`No items to do!\n");
+        PrintFC("|r`No items to do!\n");
         return;
     }
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
@@ -407,21 +407,21 @@ ListTodoItems(todo_file Todo, string* Query=0)
              i < MaxWidth - LineWidth;
              ++i)
         {
-            PrintF(" ");
+            PrintFC(" ");
         }
 
-        PrintF("|G`%d:` ", Line.LineNumber);
+        PrintFC("|G`%d:` ", Line.LineNumber);
         if (Line.Complete)
         {
-            PrintF("x %s\n", Line.Body.Value);
+            PrintFC("x %s\n", Line.Body.Value);
         }
         else if (Line.Priority) 
         {
-			PrintF("|RG`(%c)` %s\n", Line.Priority, Line.Body.Value);
+			PrintFC("|RG`(%c)` %s\n", Line.Priority, Line.Body.Value);
         }
         else
         {
-            PrintF("%s\n", Line.Body.Value);
+            PrintFC("%s\n", Line.Body.Value);
         }
     }
 }
@@ -465,7 +465,7 @@ AddTodoItem(todo_item Item)
     Todo.NumberOfItems += 1;
     if (SaveTodoFile(Todo))
     {
-        PrintF("Added |B`\"%s\"` to todo.txt on line |G`#%d`.\n", Item.Body.Value, Item.LineNumber);
+        PrintFC("Added |B`\"%s\"` to todo.txt on line |G`#%d`.\n", Item.Body.Value, Item.LineNumber);
     }
 }
 
@@ -511,17 +511,17 @@ RemoveTodoItem(int32 ItemNum)
         {
             if (SaveTodoFile(Todo))
             {
-                PrintF("Removed item |G`#%d`.\n", ItemNum);
+                PrintFC("Removed item |G`#%d`.\n", ItemNum);
             }
         }
         else
         {
-            PrintF("|R`Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
+            PrintFC("|R`Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
         }
     }
     else
     {
-        PrintF("|r`Unable to find item #%d.\n", ItemNum);
+        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -540,17 +540,17 @@ PrioritizeTodoItem(int32 ItemNum, char Priority)
         {
             if (Priority)
             {
-                PrintF("Set the priority of item |G`#%d` to |RG`(%c)`.\n", Item->LineNumber, Item->Priority);
+                PrintFC("Set the priority of item |G`#%d` to |RG`(%c)`.\n", Item->LineNumber, Item->Priority);
             }
             else
             {
-                PrintF("Deprioritized item |G`#%d`.\n", Item->LineNumber, Item->Priority);
+                PrintFC("Deprioritized item |G`#%d`.\n", Item->LineNumber, Item->Priority);
             }
         }
     }
     else
     {
-        PrintF("|r`Unable to find item #%d.\n", ItemNum);
+        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -568,12 +568,12 @@ SetTodoItemCompletion(int32 ItemNum, bool32 Complete)
 
         if (SaveTodoFile(Todo))
         {
-            PrintF("Completed item |G`#%d`.\n", Item->LineNumber, Item->Priority);
+            PrintFC("Completed item |G`#%d`.\n", Item->LineNumber, Item->Priority);
         }
     }
     else
     {
-        PrintF("|r`Unable to find item #%d.\n", ItemNum);
+        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -590,12 +590,12 @@ EditTodoItem(int32 ItemNum, string NewText)
 
         if (SaveTodoFile(Todo))
         {
-            PrintF("Edited item |G`#%d`.\n", Item->LineNumber);
+            PrintFC("Edited item |G`#%d`.\n", Item->LineNumber);
         }
     }
     else
     {
-        PrintF("|r`Unable to find item #%d.\n", ItemNum);
+        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -649,7 +649,7 @@ ArchiveCompletedItems()
     {
         if (SaveTodoFile(Todo))
         {
-            PrintF("Archived the completed items.\n");
+            PrintFC("Archived the completed items.\n");
         }
     }
 }
@@ -668,7 +668,7 @@ AddKeyword(int32 ItemNum, string Keyword)
 
         if (SaveTodoFile(Todo))
         {
-            PrintF("Added _rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
+            PrintFC("Added _rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
         }
     }
     else
@@ -718,27 +718,27 @@ RemoveKeyword(int32 ItemNum, string Keyword)
                 {
                     if (Replacements == 1)
                     {
-                        PrintF("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
+                        PrintFC("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
                     }
                     else
                     {
-                        PrintF("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
+                        PrintFC("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
                     }
                 }
             }
             else
             {
-                PrintF("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
+                PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
             }
         }
         else 
         {
-            PrintF("Item #%d not updated, invalid keyword.\n", ItemNum);
+            PrintFC("Item #%d not updated, invalid keyword.\n", ItemNum);
         }
     }
     else
     {
-        PrintF("Unable to find item #%d.\n", ItemNum);
+        PrintFC("Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -929,7 +929,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.StringArgCount == 0)
             {
-                PrintF("Please specify a valid thing to add.\n");
+                PrintFC("Please specify a valid thing to add.\n");
             }
         } break;
 
@@ -943,12 +943,12 @@ RunFromArguments(parse_args_result Args)
                 }
                 else 
                 {
-                    PrintF("Please supply exactly one string with an edited description.\n");
+                    PrintFC("Please supply exactly one string with an edited description.\n");
                 }
             }
             else
             {
-                PrintF("Please supply exactly one item number to edit.\n");
+                PrintFC("Please supply exactly one item number to edit.\n");
             }
         } break;
 
@@ -960,7 +960,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                PrintF("Please supply at least one item number to remove.\n");
+                PrintFC("Please supply at least one item number to remove.\n");
             }
         } break;
 
@@ -974,12 +974,12 @@ RunFromArguments(parse_args_result Args)
                 }
                 else 
                 {
-                    PrintF("Please supply exactly one item priority (A-Z).\n");
+                    PrintFC("Please supply exactly one item priority (A-Z).\n");
                 }
             }
             else
             {
-                PrintF("Please supply exactly one item number to prioritize.\n");
+                PrintFC("Please supply exactly one item number to prioritize.\n");
             }
         } break;
 
@@ -991,7 +991,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                PrintF("Please supply at least one item number to deprioritize.\n");
+                PrintFC("Please supply at least one item number to deprioritize.\n");
             }
         } break;
 
@@ -1003,7 +1003,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                PrintF("Please supply at least one item number to deprioritize.\n");
+                PrintFC("Please supply at least one item number to deprioritize.\n");
             }
         } break;
 
@@ -1038,7 +1038,7 @@ RunFromArguments(parse_args_result Args)
             }
             else
             {
-                PrintF("Please specify at least one item number and at least one thing to add.\n");
+                PrintFC("Please specify at least one item number and at least one thing to add.\n");
             }
         } break;
 
@@ -1080,24 +1080,24 @@ RunFromArguments(parse_args_result Args)
             }
             else
             {
-                PrintF("Please specify exactly one item number.\n");
+                PrintFC("Please specify exactly one item number.\n");
             }
         } break;
 
         case CMD_HELP:
         {
-            PrintF(Help);
+            PrintFC(Help);
         } break;
 
         default:
         {
             if (Args.Flags & FLAG_HELP)
             {
-                PrintF(Help);
+                PrintFC(Help);
             }
             else
             {
-                PrintF("%s\n"
+                PrintFC("%s\n"
                       "Try todo -h for more information.\n", Usage);
             }
         } break;

@@ -216,7 +216,7 @@ WinColorFromCharacter(char Character, bool32 Foreground=true)
 }
 
 internal bool32
-PlatformPrintColored(size_t Length, char* String)
+PlatformColorPrint(size_t Length, char* String)
 {
     bool32 Result;
     int16 WinColor;
@@ -281,7 +281,7 @@ PlatformPrintColored(size_t Length, char* String)
 }
 
 internal bool32
-PlatformPrintFormatted(char* FormatString, ...)
+PlatformColorPrintFormatted(char* FormatString, ...)
 {
     size_t Length = StringLength(FormatString);
     size_t FormattedLength = Max(Length*2, 256); // TODO(Chronister): This allocation
@@ -292,7 +292,7 @@ PlatformPrintFormatted(char* FormatString, ...)
     vsprintf_s(ScratchBuffer, FormattedLength, FormatString, args);
     va_end(args);
 
-    bool32 Result = PlatformPrintColored(FormattedLength, ScratchBuffer);
+    bool32 Result = PlatformColorPrint(FormattedLength, ScratchBuffer);
     PlatformFreeMemory(ScratchBuffer);
 
     return Result;
