@@ -386,7 +386,7 @@ ListTodoItems(todo_file Todo, string* Query=0)
 {
     if (Todo.NumberOfItems <= 0)
     {
-        PlatformError("No items to do\n");
+        PrintF("|r`No items to do!\n");
         return;
     }
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
@@ -407,23 +407,21 @@ ListTodoItems(todo_file Todo, string* Query=0)
              i < MaxWidth - LineWidth;
              ++i)
         {
-            PrintFCB(PrintColor(COLOR_BLACK), PrintColor(COLOR_GREEN), " ");
+            PrintF(" ");
         }
 
-        PrintFCB(PrintColor(COLOR_BLACK), PrintColor(COLOR_GREEN), "%d:", Line.LineNumber);
+        PrintF("|G`%d:` ", Line.LineNumber);
         if (Line.Complete)
         {
-            PrintF(" x %s\n", Line.Body.Value);
+            PrintF("x %s\n", Line.Body.Value);
         }
         else if (Line.Priority) 
         {
-            PrintF(" ");
-            PrintFCB(PrintColor(COLOR_BLACK), PrintColor(COLOR_WHITE), "(%c)", Line.Priority);
-            PrintF(" %s\n", Line.Body.Value);
+			PrintF("|RG`(%c)` %s\n", Line.Priority, Line.Body.Value);
         }
         else
         {
-            PrintF(" %s\n", Line.Body.Value);
+            PrintF("%s\n", Line.Body.Value);
         }
     }
 }
@@ -467,11 +465,7 @@ AddTodoItem(todo_item Item)
     Todo.NumberOfItems += 1;
     if (SaveTodoFile(Todo))
     {
-        PrintF("Added ");
-        PrintFC(PrintColor(COLOR_BLUE, true), "\"%s\"", Item.Body.Value);
-        PrintF(" to todo.txt on line ");
-        PrintFC(PrintColor(COLOR_GREEN), "#%d", Item.LineNumber);
-        PrintF(".\n");
+        PrintF("Added |B`\"%s\"` to todo.txt on line |G`#%d`.\n", Item.Body.Value, Item.LineNumber);
     }
 }
 
@@ -517,17 +511,17 @@ RemoveTodoItem(int32 ItemNum)
         {
             if (SaveTodoFile(Todo))
             {
-                print("Removed item #%d.\n", Item->LineNumber);
+                PrintF("Removed item |G`#%d`.\n", ItemNum);
             }
         }
         else
         {
-            print("Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
+            PrintF("|R`Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
         }
     }
     else
     {
-        print("Unable to find item #%d.\n", ItemNum);
+        PrintF("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -546,17 +540,17 @@ PrioritizeTodoItem(int32 ItemNum, char Priority)
         {
             if (Priority)
             {
-                PrintF("Set the priority of item #%d to %c.\n", Item->LineNumber, Item->Priority);
+                PrintF("Set the priority of item |G`#%d` to |RG`(%c)`.\n", Item->LineNumber, Item->Priority);
             }
             else
             {
-                print("Deprioritized item #%d.\n", Item->LineNumber, Item->Priority);
+                PrintF("Deprioritized item |G`#%d`.\n", Item->LineNumber, Item->Priority);
             }
         }
     }
     else
     {
-        PrintFC(PrintColor(COLOR_RED), "Unable to find item #%d.\n", ItemNum);
+        PrintF("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -574,12 +568,12 @@ SetTodoItemCompletion(int32 ItemNum, bool32 Complete)
 
         if (SaveTodoFile(Todo))
         {
-            print("Completed item #%d.\n", Item->LineNumber, Item->Priority);
+            PrintF("Completed item |G`#%d`.\n", Item->LineNumber, Item->Priority);
         }
     }
     else
     {
-        print("Unable to find item #%d.\n", ItemNum);
+        PrintF("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -596,12 +590,12 @@ EditTodoItem(int32 ItemNum, string NewText)
 
         if (SaveTodoFile(Todo))
         {
-            print("Edited item #%d.\n", Item->LineNumber);
+            PrintF("Edited item |G`#%d`.\n", Item->LineNumber);
         }
     }
     else
     {
-        print("Unable to find item #%d.\n", ItemNum);
+        PrintF("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -655,7 +649,7 @@ ArchiveCompletedItems()
     {
         if (SaveTodoFile(Todo))
         {
-            print("Archived the completed items.\n");
+            PrintF("Archived the completed items.\n");
         }
     }
 }
@@ -674,12 +668,12 @@ AddKeyword(int32 ItemNum, string Keyword)
 
         if (SaveTodoFile(Todo))
         {
-            print("Added %s item #%d.\n", Keyword.Value, Item->LineNumber);
+            PrintF("Added _rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
         }
     }
     else
     {
-        print("Unable to find item #%d.\n", ItemNum);
+        print("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -714,6 +708,7 @@ RemoveKeyword(int32 ItemNum, string Keyword)
                     }
                 }
             }
+            Keyword = CatStrings(STR(" "), Keyword);
 
             int Replacements = StringReplace(&Item->Body, Keyword, STR(""));
             
@@ -723,27 +718,27 @@ RemoveKeyword(int32 ItemNum, string Keyword)
                 {
                     if (Replacements == 1)
                     {
-                        print("Removed %s from item #%d.\n", Keyword.Value, Item->LineNumber);
+                        PrintF("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
                     }
                     else
                     {
-                        print("Removed %d instances of %s from item #%d.\n", Replacements, Keyword.Value, Item->LineNumber);
+                        PrintF("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
                     }
                 }
             }
             else
             {
-                print("Couldn't find %s in item #%d.\n", Keyword.Value, Item->LineNumber);
+                PrintF("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
             }
         }
         else 
         {
-            print("Item #%d not updated, invalid keyword.\n", ItemNum);
+            PrintF("Item #%d not updated, invalid keyword.\n", ItemNum);
         }
     }
     else
     {
-        print("Unable to find item #%d.\n", ItemNum);
+        PrintF("Unable to find item #%d.\n", ItemNum);
     }
 }
 
@@ -934,7 +929,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.StringArgCount == 0)
             {
-                print("Please specify a valid thing to add.\n");
+                PrintF("Please specify a valid thing to add.\n");
             }
         } break;
 
@@ -948,12 +943,12 @@ RunFromArguments(parse_args_result Args)
                 }
                 else 
                 {
-                    print("Please supply exactly one string with an edited description.\n");
+                    PrintF("Please supply exactly one string with an edited description.\n");
                 }
             }
             else
             {
-                print("Please supply exactly one item number to edit.\n");
+                PrintF("Please supply exactly one item number to edit.\n");
             }
         } break;
 
@@ -965,7 +960,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                print("Please supply at least one item number to remove.\n");
+                PrintF("Please supply at least one item number to remove.\n");
             }
         } break;
 
@@ -979,12 +974,12 @@ RunFromArguments(parse_args_result Args)
                 }
                 else 
                 {
-                    print("Please supply exactly one item priority (A-Z).\n");
+                    PrintF("Please supply exactly one item priority (A-Z).\n");
                 }
             }
             else
             {
-                print("Please supply exactly one item number to prioritize.\n");
+                PrintF("Please supply exactly one item number to prioritize.\n");
             }
         } break;
 
@@ -996,7 +991,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                print("Please supply at least one item number to deprioritize.\n");
+                PrintF("Please supply at least one item number to deprioritize.\n");
             }
         } break;
 
@@ -1008,7 +1003,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                print("Please supply at least one item number to deprioritize.\n");
+                PrintF("Please supply at least one item number to deprioritize.\n");
             }
         } break;
 
@@ -1043,7 +1038,7 @@ RunFromArguments(parse_args_result Args)
             }
             else
             {
-                print("Please specify at least one item number and at least one thing to add.\n");
+                PrintF("Please specify at least one item number and at least one thing to add.\n");
             }
         } break;
 
@@ -1085,24 +1080,24 @@ RunFromArguments(parse_args_result Args)
             }
             else
             {
-                print("Please specify exactly one item number.\n");
+                PrintF("Please specify exactly one item number.\n");
             }
         } break;
 
         case CMD_HELP:
         {
-            print(Help);
+            PrintF(Help);
         } break;
 
         default:
         {
             if (Args.Flags & FLAG_HELP)
             {
-                print(Help);
+                PrintF(Help);
             }
             else
             {
-                print("%s\n"
+                PrintF("%s\n"
                       "Try todo -h for more information.\n", Usage);
             }
         } break;

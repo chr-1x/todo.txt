@@ -176,74 +176,126 @@ PlatformWriteEntireFile(char* Filepath, size_t StringSize, char* StringToWrite)
 
     return(Result);
 }
+/*
+    "This is a |Rxx_xgb`test` %d"
+    
+    (do printf substitution)
+
+    (get first index of |):
+        for character in | to |+3
+            if (character != '|' or '_' or '`')
+                color |= determinecolor(character, true)
+    (get first index of _):
+        ''
+            ''
+                color |= '', false)
+
+
+*/
 
 internal int16
-PrintColorToWinColor(print_color PrintColor, bool32 IsForeground)
+WinColorFromCharacter(char Character, bool32 Foreground=true)
 {
-    int16 ResultColor = 0;
-    switch(PrintColor.Color)
+    switch (Character)
     {
-        case COLOR_RED: 
-        case COLOR_YELLOW:
-        case COLOR_MAGENTA:
-        case COLOR_WHITE:
+        case 'r':
+            return Foreground ? FOREGROUND_RED : BACKGROUND_RED;
+        case 'R':
+            return Foreground ? FOREGROUND_RED | FOREGROUND_INTENSITY : BACKGROUND_RED | BACKGROUND_INTENSITY;
+        case 'g':
+            return Foreground ? FOREGROUND_GREEN : BACKGROUND_GREEN;
+        case 'G':
+            return Foreground ? FOREGROUND_GREEN | FOREGROUND_INTENSITY : BACKGROUND_GREEN | BACKGROUND_INTENSITY;\
+        case 'b':
+            return Foreground ? FOREGROUND_BLUE : BACKGROUND_BLUE;
+        case 'B':
+            return Foreground ? FOREGROUND_BLUE | FOREGROUND_INTENSITY : BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+        default:
+            return 0;
+    }
+}
+
+internal bool32
+PlatformPrintColored(size_t Length, char* String)
+{
+    bool32 Result;
+    int16 WinColor;
+    uint32 CharsWritten;
+    uint32 CharsToWrite;
+
+    int32 i = 0;
+    for (char* C = String; *C != '\0' && i < Length; ++C, ++i)
+    {
+        if (*C == '`')
         {
-            ResultColor |= (IsForeground ? FOREGROUND_RED : BACKGROUND_RED);
+            char ColorString[9] = {};
+			char* StringEnd = Max(C - 8, String);
+            CopyString(C - StringEnd, StringEnd, 8, ColorString);
+
+            WinColor = 0;
+            int32 CharsToSkip = 0;
+
+            int32 LastForeground = (int32)StringLastIndexOf(ColorString, "|");
+            if (LastForeground >= 0)
+            {   
+                for (char* Col = ColorString + LastForeground; *Col != '\0' && *Col != '_'; ++Col)
+                {
+                    WinColor |= WinColorFromCharacter(*Col, true);
+                }
+            }
+
+            int32 LastBackground = (int32)StringLastIndexOf(ColorString, "_");
+            if (LastBackground >= 0)
+            {
+                for (char* Col = ColorString + LastBackground; *Col != '\0' && *Col != '|'; ++Col)
+                {
+                    WinColor |= WinColorFromCharacter(*Col, false);
+                }
+            }
+
+            if (LastBackground >= 0 || LastForeground >= 0)
+            {
+                CharsToSkip = (int32)(C - StringEnd + 1) - (int32)Min((uint32)LastBackground, (uint32)LastForeground);
+            }
+            else
+            {
+                WinColor = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
+            }
+
+            uint32 CharsToWrite = (uint32)Max(((C - String)) - (int64)CharsToSkip, 0);
+            Result &= WriteConsole(ConsoleOut, String, (uint32)CharsToWrite, (LPDWORD)&CharsWritten, NULL);
+            Result &= (CharsWritten == CharsToWrite);
+
+            String = ++C;
+
+            SetConsoleTextAttribute(ConsoleOut, WinColor);
         }
     }
-    switch(PrintColor.Color)
-    {
-        case COLOR_YELLOW: 
-        case COLOR_GREEN:
-        case COLOR_CYAN:
-        case COLOR_WHITE:
-        {
-            ResultColor |= (IsForeground ? FOREGROUND_GREEN : BACKGROUND_GREEN);
-        } break;
-    }
-    switch(PrintColor.Color)
-    {
-        case COLOR_CYAN: 
-        case COLOR_BLUE:
-        case COLOR_MAGENTA:
-        case COLOR_WHITE:
-        {
-            ResultColor |= (IsForeground ? FOREGROUND_BLUE : BACKGROUND_BLUE);
-        } break;
-    }
-    return ResultColor;
+
+    CharsToWrite = StringLength(String);
+    Result &= WriteConsole(ConsoleOut, String, (uint32)CharsToWrite, (LPDWORD)&CharsWritten, NULL);
+    Result &= (CharsWritten == CharsToWrite);
+
+    SetConsoleTextAttribute(ConsoleOut, FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
+    return Result;
 }
 
 internal bool32
-PlatformPrint(print_color ForegroundColor, print_color BackgroundColor, size_t Length, char* String)
-{
-    int16 WinFgColor = (ForegroundColor.IsIntense ? FOREGROUND_INTENSITY : 0);
-    int16 WinBgColor = (BackgroundColor.IsIntense ? BACKGROUND_INTENSITY : 0);
-    WinFgColor |= PrintColorToWinColor(ForegroundColor, true);
-    WinBgColor |= PrintColorToWinColor(BackgroundColor, false);
-
-    SetConsoleTextAttribute(ConsoleOut, WinFgColor | WinBgColor);
-    uint32 CharsWritten;
-    bool32 Result = WriteConsole(ConsoleOut, String, (uint32)Length, (LPDWORD)&CharsWritten, NULL);
-    SetConsoleTextAttribute(ConsoleOut, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
-    
-    return Result && CharsWritten == Length;
-}
-
-internal bool32
-PlatformPrintFormatted(print_color ForegroundColor, print_color BackgroundColor, char* FormatString, ...)
+PlatformPrintFormatted(char* FormatString, ...)
 {
     size_t Length = StringLength(FormatString);
-    char* ScratchBuffer = (char*)PlatformAllocMemory(Max(Length*2, 256), false);
+    size_t FormattedLength = Max(Length*2, 256); // TODO(Chronister): This allocation
+    char* ScratchBuffer = (char*)PlatformAllocMemory(FormattedLength, false);
     
     va_list args;
     va_start(args, FormatString);
-    vsprintf_s(ScratchBuffer, Max(Length*2, 256), FormatString, args);
+    vsprintf_s(ScratchBuffer, FormattedLength, FormatString, args);
     va_end(args);
 
+    bool32 Result = PlatformPrintColored(FormattedLength, ScratchBuffer);
     PlatformFreeMemory(ScratchBuffer);
 
-    return PlatformPrint(ForegroundColor, BackgroundColor, StringLength(ScratchBuffer), ScratchBuffer);
+    return Result;
 }
 
 internal bool32

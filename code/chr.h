@@ -179,11 +179,11 @@ CopyString(size_t SourceCount, char* Source, size_t DestCount, char* Dest)
 
 
 int64
-StringIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Needle, int64 StartIndex = 0)
+StringIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Needle, int64 LowerBound = 0)
 {
-    int NeedleIndex = 0;
+    size_t NeedleIndex = 0;
 
-    for (size_t i = StartIndex;
+    for (size_t i = LowerBound;
         i < HaystackCount;
         ++i)
     {
@@ -208,9 +208,43 @@ StringIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Ne
 
 // Automates the finding of the length of C-style strings. Better to call the other if you already know the lengths.
 int64 
-StringIndexOf(char* Haystack, char* Needle, int64 StartIndex = 0)
+StringIndexOf(char* Haystack, char* Needle, int64 LowerBound = 0)
 {
-    return StringIndexOf(StringLength(Haystack), Haystack, StringLength(Needle), Needle, StartIndex);
+    return StringIndexOf(StringLength(Haystack), Haystack, StringLength(Needle), Needle, LowerBound);
+}
+
+int64
+StringLastIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Needle, int64 UpperBound = -1)
+{
+    int64 NeedleIndex = NeedleCount - 1;
+    if (UpperBound < 0) { UpperBound = HaystackCount - 1; }
+
+    for (int64 i = UpperBound;
+        i >= 0;
+        --i)
+    {
+        if (Haystack[i] == Needle[NeedleIndex])
+        {
+            --NeedleIndex;
+            if (NeedleIndex < 0)
+            {
+                return (i+1);
+            }
+        }
+        else 
+        {
+            if (NeedleIndex < (int64)(NeedleCount) - 1)
+            {
+                NeedleIndex = NeedleCount - 1;
+            }
+        }
+    }
+    return -1;
+}
+
+int64 StringLastIndexOf(char* Haystack, char* Needle, int64 UpperBound = -1)
+{
+    return StringLastIndexOf(StringLength(Haystack), Haystack, StringLength(Needle), Needle, UpperBound);
 }
 
 /* =====================

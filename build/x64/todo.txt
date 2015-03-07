@@ -1,5 +1,6 @@
-(A) Do a thing project2 +project2
-Change remove keyword to ensure that there is a space before the keyword
-It's a thing
-It's another thing
-Test++fruit+pomme
+(A) Do a thing project2
+Change remove  to ensure that there is a space before the  keyword
+thing test 1
+(G) I did a thing +colors
+(B) Shortened +todo +item +more
+Testy tests :S
