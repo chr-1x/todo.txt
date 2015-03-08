@@ -176,22 +176,6 @@ PlatformWriteEntireFile(char* Filepath, size_t StringSize, char* StringToWrite)
 
     return(Result);
 }
-/*
-    "This is a |Rxx_xgb`test` %d"
-    
-    (do printf substitution)
-
-    (get first index of |):
-        for character in | to |+3
-            if (character != '|' or '_' or '`')
-                color |= determinecolor(character, true)
-    (get first index of _):
-        ''
-            ''
-                color |= '', false)
-
-
-*/
 
 internal int16
 WinColorFromCharacter(char Character, bool32 Foreground=true)
@@ -310,6 +294,18 @@ PlatformError(char* ErrorMessage)
     return Result && CharsWritten == ErrorLength;
 }
 
+internal string
+PlatformReadLine()
+{
+    string Result;
+    char Buf[256]; //TODO(chronister): The size of this buffer
+    uint32 CharsRead;
+    ReadConsole(ConsoleIn, (void*)Buf, 256, (DWORD*)(&CharsRead), NULL);
+    Result.Value = (char*)PlatformAllocMemory(CharsRead, true);
+    CopyString(256, Buf, CharsRead-2, Result.Value);
+    Result.Length = CharsRead;
+    return Result;
+}
 
 int main(int argc, char* argv[])
 {

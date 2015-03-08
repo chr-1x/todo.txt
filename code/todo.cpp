@@ -88,6 +88,55 @@ GetDoneFilename(string TodoFilename)
     return DoneStr;
 }
 
+bool32 
+ConfirmAction(string Prompt)
+{
+    int32 Result = -1;
+    string Response;
+
+    do {
+        PrintFC(Prompt.Value);
+        Response = PlatformReadLine();
+        //Let's test a truly rediculous number of options.
+        if (CompareStrings(Response.Value, "y")
+         || CompareStrings(Response.Value, "yes")
+         || CompareStrings(Response.Value, "yeah")
+         || CompareStrings(Response.Value, "ok")
+         || CompareStrings(Response.Value, "Y")
+         || CompareStrings(Response.Value, "Yes")
+         || CompareStrings(Response.Value, "Yeah")
+         || CompareStrings(Response.Value, "YES")
+         || CompareStrings(Response.Value, "YEAH")
+         || CompareStrings(Response.Value, "OK")
+         || CompareStrings(Response.Value, "okay")
+         || CompareStrings(Response.Value, "Okay")
+         || CompareStrings(Response.Value, "OKAY"))
+        {
+            Result = 1;
+        }
+        else if (CompareStrings(Response.Value, "n")
+         || CompareStrings(Response.Value, "no")
+         || CompareStrings(Response.Value, "nah")
+         || CompareStrings(Response.Value, "nope")
+         || CompareStrings(Response.Value, "N")
+         || CompareStrings(Response.Value, "No")
+         || CompareStrings(Response.Value, "Nah")
+         || CompareStrings(Response.Value, "NO")
+         || CompareStrings(Response.Value, "NAH")
+         || CompareStrings(Response.Value, "Nope")
+         || CompareStrings(Response.Value, "NOPE"))
+        {
+            Result = 0;
+        }
+        else
+        {
+            PrintFC("|r`%s` just won't do, try again.\n", Response.Value);
+        }
+    } while(Result < 0);
+
+    return Result > 0;
+}
+
 inline bool32 
 IsValidPriority(char Test)
 {
@@ -711,24 +760,32 @@ RemoveKeyword(int32 ItemNum, string Keyword)
             Keyword = CatStrings(STR(" "), Keyword);
 
             int Replacements = StringReplace(&Item->Body, Keyword, STR(""));
-            
-            if (Replacements > 0) 
+            char Buffer[256];
+            sprintf_s(Buffer, 256, "Item |G`#%d` now reads |B`%s`, is this correct? >> ", Item->LineNumber, Item->Body.Value);
+            if (ConfirmAction(STR(Buffer)))
             {
-                if (SaveTodoFile(Todo))
+                if (Replacements > 0) 
                 {
-                    if (Replacements == 1)
+                    if (SaveTodoFile(Todo))
                     {
-                        PrintFC("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
+                        if (Replacements == 1)
+                        {
+                            PrintFC("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
+                        }
+                        else
+                        {
+                            PrintFC("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
+                        }
                     }
-                    else
-                    {
-                        PrintFC("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
-                    }
+                }
+                else
+                {
+                    PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
                 }
             }
             else
             {
-                PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
+                PrintFC("Removal aborted.");
             }
         }
         else 
