@@ -268,10 +268,10 @@ GetItemStringSize(todo_item Item)
 }
 
 internal void
-SerializeTodoItem(todo_item Item, size_t* ResultLength, char* Result)
+SerializeTodoItem(todo_item Item, size_t ResultLength, char* Result)
 {
     size_t ItemLength = GetItemStringSize(Item);
-    Assert(*ResultLength >= ItemLength);
+    Assert(ResultLength > ItemLength);
 
     if (Item.Complete)
     {
@@ -314,13 +314,16 @@ SerializeTodoFile(todo_file Todo)
             //TODO(chronister): Get a better foreach macro that doesn't require this redefinition
             Item = It;
             size_t ItemLength = GetItemStringSize(Item);
-            char* Serial = (char*)PlatformAllocMemory(ItemLength);
+            size_t ItemBufferSize = ItemLength + 1;
+            char* Serial = (char*)PlatformAllocMemory(ItemBufferSize, true);
             
-            SerializeTodoItem(Item, &ItemLength, Serial);
+            SerializeTodoItem(Item, ItemBufferSize, Serial);
 
             Assert((RunningSize + ItemLength) <= TotalSize);
             CatStrings(RunningSize, Result.Contents, ItemLength, Serial, TotalSize, Result.Contents);
             RunningSize += ItemLength;
+
+			PlatformFreeMemory(Serial);
         }
 
         //Eliminate trailing newlines
@@ -673,7 +676,7 @@ AddKeyword(int32 ItemNum, string Keyword)
     }
     else
     {
-        print("|r`Unable to find item #%d.\n", ItemNum);
+        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
     }
 }
 

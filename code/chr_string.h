@@ -14,7 +14,7 @@ CatStrings(string String1, string String2)
 {
     string Result;
     Result.Length = String1.Length + String2.Length;
-    Result.Value = (char*)Alloc(Result.Length);
+    Result.Value = (char*)Alloc(Result.Length + 1);
     CatStrings(String1.Length, String1.Value, String2.Length, String2.Value, Result.Length, Result.Value);
     return Result;
 }

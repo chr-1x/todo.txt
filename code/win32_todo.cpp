@@ -318,5 +318,24 @@ int main(int argc, char* argv[])
     ConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
     ConsoleError = GetStdHandle(STD_ERROR_HANDLE);
 
+	// char* testargv1[] = { "todo.exe", "ls"};
+	// RunFromArguments(ParseArgs(2, testargv1));
+	// char* testargv8[] = { "todo.exe", "rm", "10" };
+	// RunFromArguments(ParseArgs(3, testargv8));
+	// char* testargv9[] = { "todo.exe", "rm", "9" };
+	// RunFromArguments(ParseArgs(3, testargv9));
+	// char* testargv2[] = { "todo.exe", "add", "be a cool giant flying reptile", "" };
+	// RunFromArguments(ParseArgs(3, testargv2));
+ //    char* testargv3[] = { "todo.exe", "add", "hoard loot and breath fire", "" };
+ //    RunFromArguments(ParseArgs(3, testargv3));
+ //    char* testargv4[] = { "todo.exe", "edit", "9", "do what you want cause a dragon is free" };
+ //    RunFromArguments(ParseArgs(4, testargv4));
+ //    char* testargv5[] = { "todo.exe", "pri", "9", "A" };
+ //    RunFromArguments(ParseArgs(4, testargv5));
+ //    char* testargv6[] = { "todo.exe", "pri", "10", "B" };
+ //    RunFromArguments(ParseArgs(4, testargv6));
+ //    char* testargv7[] = { "todo.exe", "addproj", "9", "+dragonThings" };
+ //    RunFromArguments(ParseArgs(4, testargv7));
+ //    RunFromArguments(ParseArgs(2, testargv1));
     RunFromArguments(ParseArgs(argc, argv));
 }
