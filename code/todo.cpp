@@ -413,6 +413,26 @@ ListTodoItems(todo_file Todo, string* Query=0)
             PrintFC(" ");
         }
 
+        // string ColoredBody = Line.Body;
+
+        // int NumProjects = StringOccurrences(Line.Body, STR("+"));
+        // if (NumProjects > 0)
+        // {
+        //     // _rgb` -- 4
+        //     ColoredBody = Alloc(Line.Body.Length + NumProjects * 4);
+
+        //     uint32 LastKeychar = 0;
+        //     uint32 LastSpace = 0;
+        //     uint32 CurrentKeychar = 0;
+        //     uint32 CurrentSpace = 0;
+        //     for (int i = 0;
+        //         i < NumProjects;
+        //         ++i)
+        //     {
+        //         LastKeychar = StringIndexOf(Line.Body)
+        //     }
+        // }
+
         PrintFC("|G`%d:` ", Line.LineNumber);
         if (Line.Complete)
         {

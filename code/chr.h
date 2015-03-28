@@ -247,6 +247,63 @@ int64 StringLastIndexOf(char* Haystack, char* Needle, int64 UpperBound = -1)
     return StringLastIndexOf(StringLength(Haystack), Haystack, StringLength(Needle), Needle, UpperBound);
 }
 
+int32 
+StringOccurrences(size_t SourceCount, char* Source, size_t SearchCount, char* Search)
+{
+    int64 Index = 0;
+    int Occurrences = 0;
+    while ((Index = StringIndexOf(SourceCount, Source, SearchCount, Search, Index+1)) >= 0)
+    {   
+        ++Occurrences;
+    }
+    
+    return Occurrences;
+}
+
+int32 StringOccurrences(char* Source, char* Search)
+{
+    return StringOccurrences(StringLength(Source), Source, StringLength(Search), Search);
+}
+
+int 
+StringReplace(size_t SourceCount, char* Source, 
+              size_t DestCount, char* Dest, 
+              size_t TokenCount, char* Token, 
+              size_t ReplacementCount, char* Replacement)
+{
+    int OccurrenceCount = StringOccurrences(SourceCount, Source, TokenCount, Token);
+    if (OccurrenceCount > 0)
+    {
+        size_t Delta = (ReplacementCount - TokenCount) * OccurrenceCount; // Remember, might be negative
+        size_t NewLength = SourceCount + Delta;
+
+        Assert(DestCount >= NewLength);
+
+        size_t LastIndex = 0;
+        int64 NextIndex = 0;
+        size_t NewStringIndex = 0;
+        while ((NextIndex = StringIndexOf(SourceCount, Source, TokenCount, Token, (int)NextIndex + 1)) >= 0)
+        {
+            //Copy in from the original string, up to the next token occurrence
+            CopyString(NextIndex - LastIndex, Source + LastIndex, NextIndex - LastIndex, Dest + NewStringIndex);
+            NewStringIndex += (NextIndex - LastIndex);
+
+            //Copy in from the replacement instead of copying the token from the original
+            CopyString(ReplacementCount, Replacement, ReplacementCount, Dest + NewStringIndex);
+            NewStringIndex += ReplacementCount;
+
+            // Account for the token before moving on
+            LastIndex = NextIndex + TokenCount; 
+        }
+
+        CopyString(SourceCount - LastIndex, Source + LastIndex, NewLength - NewStringIndex, Dest + NewStringIndex);
+
+        Assert(NewStringIndex + (SourceCount - LastIndex) == NewLength);
+    }
+
+    return OccurrenceCount;
+}
+
 /* =====================
       Number Parsing 
    ===================== */

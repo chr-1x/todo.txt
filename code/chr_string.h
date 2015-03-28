@@ -58,14 +58,7 @@ StringIndexOf(string Haystack, string Needle, int64 StartIndex = 0)
 int 
 StringOccurrences(string Source, string Search)
 {
-    int64 Index = 0;
-    int Occurrences = 0;
-    while ((Index = StringIndexOf(Source, Search, Index+1)) >= 0)
-    {   
-        ++Occurrences;
-    }
-    
-    return Occurrences;
+    return StringOccurrences(Source.Length, Source.Value, Search.Length, Search.Value);
 }
 
 int 
@@ -77,30 +70,13 @@ StringReplace(string* Source, string Token, string Replacement)
         size_t Delta = (Replacement.Length - Token.Length) * OccurrenceCount; // Remember, might be negative
         size_t NewLength = Source->Length + Delta;
 
-        char* NewString = (char*)Alloc(NewLength);
-        size_t LastIndex = 0;
-        int64 NextIndex = 0;
-        size_t NewStringIndex = 0;
-        while ((NextIndex = StringIndexOf(*Source, Token, (int)NextIndex + 1)) >= 0)
-        {
-            //Copy in from the original string, up to the next token occurrence
-            CopyString(NextIndex - LastIndex, Source->Value + LastIndex, NextIndex - LastIndex, NewString + NewStringIndex);
-            NewStringIndex += (NextIndex - LastIndex);
+        size_t DestLength = 0;
+        char* DestValue = (char*)Alloc(NewLength);
 
-            //Copy in from the replacement instead of copying the token from the original
-            CopyString(Replacement.Length, Replacement.Value, Replacement.Length, NewString + NewStringIndex);
-            NewStringIndex += Replacement.Length;
-
-            // Account for the token before moving on
-            LastIndex = NextIndex + Token.Length; 
-        }
-
-        CopyString(Source->Length - LastIndex, Source->Value + LastIndex, NewLength - NewStringIndex, NewString + NewStringIndex);
-
-        Assert(NewStringIndex + (Source->Length - LastIndex) == NewLength);
-        Source->Value = NewString;
-        Source->Length = NewLength;
-
+        StringReplace(Source->Length, Source->Value,
+                      DestLength, DestValue,
+                      Token.Length, Token.Value,
+                      Replacement.Length, Replacement.Value);
     }
 
     return OccurrenceCount;
