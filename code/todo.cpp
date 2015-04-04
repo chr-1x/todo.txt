@@ -280,9 +280,7 @@ ParseTodoFile(read_file_result File)
             size_t Length = End - Start;
             Assert(LineNum < Todo.NumberOfItems);
             *End = '\0';
-            string Line;
-            Line.Length = (uint32)Length;
-            Line.Value = Start;
+            string Line = STR(Start, Length + 1, Length);
 
             Todo.Items[LineNum] = ParseTodoLine(LineNum+1, Line);
             
@@ -462,38 +460,67 @@ ListTodoItems(todo_file Todo, string* Query=0)
             PrintFC(" ");
         }
 
-        // string ColoredBody = Line.Body;
+     //    string ColoredBody = Line.Body;
 
-        // int NumProjects = StringOccurrences(Line.Body, STR("+"));
-        // if (NumProjects > 0)
-        // {
-        //     // _rgb` -- 4
-        //     ColoredBody = Alloc(Line.Body.Length + NumProjects * 4);
+     //    int NumProjects = StringOccurrences(Line.Body, STR("+"));
+     //    if (NumProjects > 0)
+     //    {
+     //        // _rgb`  ...   ` -- 6
+     //        ColoredBody.Capacity = Line.Body.Length + 6 * NumProjects + 1;
+     //        ColoredBody.Value = (char*)Alloc(ColoredBody.Capacity, true);
+     //        CopyString(Line.Body, &ColoredBody);
 
-        //     uint32 LastKeychar = 0;
-        //     uint32 LastSpace = 0;
-        //     uint32 CurrentKeychar = 0;
-        //     uint32 CurrentSpace = 0;
-        //     for (int i = 0;
-        //         i < NumProjects;
-        //         ++i)
-        //     {
-        //         LastKeychar = StringIndexOf(Line.Body)
-        //     }
-        // }
+     //        string TempBody = STR((char*)Alloc(ColoredBody.Capacity, true), ColoredBody.Capacity);
+
+     //        int64 LastKeychar = 0;
+     //        int64 LastSpace = 0;
+     //        for (int i = 0;
+     //            i < NumProjects;
+     //            ++i)
+     //        {
+     //            LastKeychar = StringIndexOf(ColoredBody, STR(" +"), LastSpace);
+     //            if (LastKeychar > 0)
+     //            {
+					// StringReplace(STR(ColoredBody.Value), &TempBody, 
+					// 		STR("+"), STR("_rgb`+"), (int)LastSpace, 1);
+     //                CopyString(TempBody, &ColoredBody);
+
+					// StringReplace(ColoredBody, &TempBody, STR(" "), STR("` "), (int)LastKeychar + 1, 1);
+     //                CopyString(TempBody, &ColoredBody);
+
+     //                LastSpace = StringIndexOf(ColoredBody, STR(" "), LastKeychar + 1);
+     //                int64 Endl = StringIndexOf(ColoredBody, STR("\0"), LastKeychar + 1);
+     //                if (LastSpace < 0)
+					// {
+					// 	if (Endl > 0) { 
+    	// 					LastSpace = Endl; 
+    	// 				}
+     //                    else { 
+    	// 					break; 
+    	// 				}
+     //                }
+     //            }
+     //            else
+     //            {
+     //                break;
+     //            }
+     //        }
+
+     //        FreeString(&TempBody);
+     //    }
 
         PrintFC("|G`%d:` ", Line.LineNumber);
         if (Line.Complete)
         {
-            PrintFC("x %s\n", Line.Body.Value);
+            PrintFC("x %s\n", ColoredBody.Value);
         }
         else if (Line.Priority) 
         {
-			PrintFC("|RG`(%c)` %s\n", Line.Priority, Line.Body.Value);
+			PrintFC("|RG`(%c)` %s\n", Line.Priority, ColoredBody.Value);
         }
         else
         {
-            PrintFC("%s\n", Line.Body.Value);
+            PrintFC("%s\n", ColoredBody.Value);
         }
     }
 }
