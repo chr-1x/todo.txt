@@ -1,6 +1,7 @@
 #include "chr.h"
 #include "todo.cpp"
 #include "stdarg.h"
+#include "stdlib.h"
 
 global_variable HANDLE MyHeap;
 global_variable HANDLE ConsoleOut;
@@ -10,7 +11,9 @@ global_variable HANDLE ConsoleError;
 internal void* 
 PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
-    return HeapAlloc(MyHeap, ZeroTheMemory ? HEAP_ZERO_MEMORY : 0, BytesToAlloc);
+    void* Result = HeapAlloc(MyHeap, ZeroTheMemory ? HEAP_ZERO_MEMORY : 0, BytesToAlloc);
+    memset(Result, 0xBC, BytesToAlloc);
+    return Result;
 }
 
 internal bool32
