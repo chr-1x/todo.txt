@@ -277,10 +277,13 @@ ParseTodoFile(read_file_result File)
         if (*End == '\n' || i == (File.ContentsSize))
         {
             
-            size_t Length = End - Start;
             Assert(LineNum < Todo.NumberOfItems);
-            *End = '\0';
-            string Line = STR(Start, Length + 1, Length);
+
+			string Line = {};
+			Line.Length = End - Start;
+			Line.Capacity = Line.Length + 1;
+            Line.Value = (char*)Alloc(Line.Capacity);
+            CopyString(Line.Length, Start, Line.Length, Line.Value);
 
             Todo.Items[LineNum] = ParseTodoLine(LineNum+1, Line);
             
@@ -460,54 +463,64 @@ ListTodoItems(todo_file Todo, string* Query=0)
             PrintFC(" ");
         }
 
-     //    string ColoredBody = Line.Body;
+        string ColoredBody = Line.Body;
 
-     //    int NumProjects = StringOccurrences(Line.Body, STR("+"));
-     //    if (NumProjects > 0)
-     //    {
-     //        // _rgb`  ...   ` -- 6
-     //        ColoredBody.Capacity = Line.Body.Length + 6 * NumProjects + 1;
-     //        ColoredBody.Value = (char*)Alloc(ColoredBody.Capacity, true);
-     //        CopyString(Line.Body, &ColoredBody);
+        int NumProjects = StringOccurrences(Line.Body, STR("+"));
+        if (NumProjects > 0)
+        {
+            // _rgb`  ...   ` -- 6
+            ColoredBody.Capacity = Line.Body.Length + 6 * NumProjects + 1;
+            ColoredBody.Value = (char*)Alloc(ColoredBody.Capacity, true);
+            CopyString(Line.Body, &ColoredBody);
 
-     //        string TempBody = STR((char*)Alloc(ColoredBody.Capacity, true), ColoredBody.Capacity);
+            string TempBody = STR((char*)Alloc(ColoredBody.Capacity, true), ColoredBody.Capacity);
 
-     //        int64 LastKeychar = 0;
-     //        int64 LastSpace = 0;
-     //        for (int i = 0;
-     //            i < NumProjects;
-     //            ++i)
-     //        {
-     //            LastKeychar = StringIndexOf(ColoredBody, STR(" +"), LastSpace);
-     //            if (LastKeychar > 0)
-     //            {
-					// StringReplace(STR(ColoredBody.Value), &TempBody, 
-					// 		STR("+"), STR("_rgb`+"), (int)LastSpace, 1);
-     //                CopyString(TempBody, &ColoredBody);
+            string KeywordColor = STR("|RGB`+");
 
-					// StringReplace(ColoredBody, &TempBody, STR(" "), STR("` "), (int)LastKeychar + 1, 1);
-     //                CopyString(TempBody, &ColoredBody);
+            // Deal with a + in the first spot
+            if (ColoredBody.Value[0] == '+')
+            {
+                StringReplace(STR(ColoredBody.Value), &TempBody, 
+                    STR("+"), KeywordColor, 0, 1);
+                CopyString(TempBody, &ColoredBody);
+            }
 
-     //                LastSpace = StringIndexOf(ColoredBody, STR(" "), LastKeychar + 1);
-     //                int64 Endl = StringIndexOf(ColoredBody, STR("\0"), LastKeychar + 1);
-     //                if (LastSpace < 0)
-					// {
-					// 	if (Endl > 0) { 
-    	// 					LastSpace = Endl; 
-    	// 				}
-     //                    else { 
-    	// 					break; 
-    	// 				}
-     //                }
-     //            }
-     //            else
-     //            {
-     //                break;
-     //            }
-     //        }
+            int64 LastKeychar = 0;
+            int64 LastSpace = 0;
+            for (int i = 0;
+                i < NumProjects;
+                ++i)
+            {
+                LastKeychar = StringIndexOf(ColoredBody, STR(" +"), LastSpace);
+                if (LastKeychar > 0)
+                {
+					StringReplace(STR(ColoredBody.Value), &TempBody, 
+							STR("+"), KeywordColor, (int)LastSpace, 1);
+                    CopyString(TempBody, &ColoredBody);
 
-     //        FreeString(&TempBody);
-     //    }
+					StringReplace(ColoredBody, &TempBody, STR(" "), STR("` "), (int)LastKeychar + 1, 1);
+                    CopyString(TempBody, &ColoredBody);
+
+                    LastSpace = StringIndexOf(ColoredBody, STR(" "), LastKeychar + 1);
+                    int64 Endl = StringIndexOf(ColoredBody, STR("\0"), LastKeychar + 1);
+                    if (LastSpace < 0)
+					{
+						if (Endl > 0) { 
+    						LastSpace = Endl; 
+    					}
+                        else { 
+    						break; 
+    					}
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            FreeString(&TempBody);
+        }
 
         PrintFC("|G`%d:` ", Line.LineNumber);
         if (Line.Complete)
@@ -571,9 +584,7 @@ AddTodoItem(todo_item Item)
 void
 AddTodoItem(char* Line)
 {
-    string ItemStr;
-    ItemStr.Length = StringLength(Line);
-    ItemStr.Value = Line;
+	string ItemStr = STR(Line);
 
     todo_item Item = ParseTodoLine(0, ItemStr);
     AddTodoItem(Item);

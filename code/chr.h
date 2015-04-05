@@ -252,9 +252,10 @@ StringOccurrences(size_t SourceCount, char* Source, size_t SearchCount, char* Se
 {
     int64 Index = StartIndex;
     int Occurrences = 0;
-    while ((Index = StringIndexOf(SourceCount, Source, SearchCount, Search, Index+1)) >= 0)
+    while ((Index = StringIndexOf(SourceCount, Source, SearchCount, Search, Index)) >= 0)
     {   
         ++Occurrences;
+		Index += 1; //Continue looking after the just found occurence
     }
     
     return Occurrences;
