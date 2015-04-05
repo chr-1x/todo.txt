@@ -27,30 +27,32 @@ typedef double real64;
 #include "stdio.h"
 #define print printf
 
-//NOTE(chronister): I'll selectively use some of the alternative tokens because I also code in python
-#ifdef _WIN32
-    #define and &&
-    #define or ||
-    #define xor ^
-#endif
-//TODO(chronister): GCC seems to have these tokens already?
-
-#if !defined(null)
-    #define null 0
-#endif
-
 #define global_variable static
 #define internal static
 #define local_persist static
 
 //TODO(chronister): Fully fledged assertion macro that also checks Debug vs Release
-#define Assert(Expression) if (!(Expression)) { *(int *)0 = 0; }
-
+#if INTERNAL
+    #define Assert(Expression) if (!(Expression)) { *(int *)0 = 0; }
+#else
+    #define Assert(Expression) /* */
+    //TODO(chronister): Logging
+#endif
+#define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
 #define Min(A, B) (((A) < (B)) ? (A) : (B))
 #define Max(A, B) (((A) > (B)) ? (A) : (B))
 #define Swap(A, B, T) { T temp##T = A; A = B; B = temp##T; }
 
-#define foreach(T, iter, ArrayCount, Array) T iter = Array[0]; for (int i = 0; i < (int64)ArrayCount; ++i, iter = Array[i])
+#define foreach(T, iter, ArrayCount, Array) T* iter = 0; if (Array) { iter = &((Array)[0]); } for (int i##iter = 0; i##iter < (int64)ArrayCount; ++i##iter, iter = &((Array)[i##iter]))
+#define whilecount(Expression, MaxIterations) uint64 _LoopCount = 0; while((Expression) && _LoopCount++ < MaxIterations)
+
+#define MS_PER_SEC(S) ((S) * 1000)
+#define MS_PER_MIN(M) (MS_PER_SEC(M) * 60)
+#define MS_PER_HOUR(H) (MS_PER_MIN(H) * 60)
+
+#define S_PER_MIN(M) ((M) * 60)
+#define S_PER_HOUR(H) (S_PER_MIN(H) * 60)
+#define S_PER_DAY(D) (S_PER_HOUR(D) * 24)
 
 inline uint32
 SafeTruncateUInt64(uint64 Value)
@@ -114,6 +116,22 @@ Log(int32 Value, int32 Base)
     }
 #endif 
 
+#define CopyArray(T, Dest, Source, Count) CopyMemory((void*)Dest, (void*)Source, Count*sizeof(T))
+
+#if !defined(ZeroMemory)
+    void
+    ZeroMemory(void* MemPtr, size_t BytesToClear)
+    {
+        uint8* M = (uint8*)MemPtr;
+        for (int Index = 0;
+            Index < BytesToClear;
+            ++Index)
+        {
+            *M++ = 0;
+        }
+    }
+#endif
+
 /* ==========================
       String Operations
    ========================== */
@@ -123,7 +141,7 @@ CompareStrings(char* String1, char* String2)
 {
     int i;
     for (i = 0;
-        String1[i] and String2[i];
+        String1[i] && String2[i];
         ++i)
     {
         if (String1[i] != String2[i]) { return false; }
@@ -147,14 +165,14 @@ void
 CatStrings(size_t SourceACount, char* SourceA, size_t SourceBCount, char* SourceB, size_t DestCount, char* Dest)
 {
     
-    for (int Index = 0;
+    for (size_t Index = 0;
         Index < Min(SourceACount, DestCount);
         ++Index)
     {
         *Dest++ = *SourceA++;
     }
 
-    for (int Index = 0;
+    for (size_t Index = 0;
         Index < Min(SourceBCount, DestCount - SourceACount);
         ++Index)
     {
@@ -167,7 +185,7 @@ CatStrings(size_t SourceACount, char* SourceA, size_t SourceBCount, char* Source
 void 
 CopyString(size_t SourceCount, char* Source, size_t DestCount, char* Dest)
 {
-    for (int Index = 0;
+    for (size_t Index = 0;
         Index < Min(SourceCount, DestCount);
         ++Index)
     {
@@ -177,9 +195,8 @@ CopyString(size_t SourceCount, char* Source, size_t DestCount, char* Dest)
     *Dest++ = 0;
 }
 
-
 int64
-StringIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Needle, int64 LowerBound = 0)
+StringIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Needle, size_t LowerBound = 0)
 {
     size_t NeedleIndex = 0;
 
@@ -208,7 +225,7 @@ StringIndexOf(size_t HaystackCount, char* Haystack, size_t NeedleCount, char* Ne
 
 // Automates the finding of the length of C-style strings. Better to call the other if you already know the lengths.
 int64 
-StringIndexOf(char* Haystack, char* Needle, int64 LowerBound = 0)
+StringIndexOf(char* Haystack, char* Needle, size_t LowerBound = 0)
 {
     return StringIndexOf(StringLength(Haystack), Haystack, StringLength(Needle), Needle, LowerBound);
 }
@@ -247,15 +264,30 @@ int64 StringLastIndexOf(char* Haystack, char* Needle, int64 UpperBound = -1)
     return StringLastIndexOf(StringLength(Haystack), Haystack, StringLength(Needle), Needle, UpperBound);
 }
 
+void
+ZeroString(size_t StringLength, char* String)
+{
+    for (size_t i = 0; i < StringLength; ++i)
+    {
+        String[i] = 0;
+    }
+}
+
+inline bool32 
+IsNumber(char C)
+{
+    return C >= '0' && C <= '9';
+}
+
+
 int32 
 StringOccurrences(size_t SourceCount, char* Source, size_t SearchCount, char* Search, uint32 StartIndex = 0)
 {
     int64 Index = StartIndex;
     int Occurrences = 0;
-    while ((Index = StringIndexOf(SourceCount, Source, SearchCount, Search, Index)) >= 0)
+    while ((Index = StringIndexOf(SourceCount, Source, SearchCount, Search, Index+1)) >= 0)
     {   
         ++Occurrences;
-		Index += 1; //Continue looking after the just found occurence
     }
     
     return Occurrences;
@@ -280,7 +312,7 @@ struct parse_int_result
 };
 
 parse_int_result
-ParseInteger(int32 TextLength, char* Text)
+ParseInteger(size_t TextLength, char* Text)
 {
     parse_int_result Result = {};
     Result.Valid = true;
@@ -292,14 +324,14 @@ ParseInteger(int32 TextLength, char* Text)
         ++Text;
         --TextLength;
     }
-    for (int i = 0;
+    for (size_t i = 0;
         i < TextLength;
         ++i)
     {
         char C = Text[i];
-        if (C >= 48 && C <= 57)
+        if (IsNumber(C))
         {
-            Result.Value += (C - 48) * Pow(10, TextLength - i - 1);
+            Result.Value += (C - 48) * Pow(10, (int32)(TextLength - i - 1));
         }
         else 
         {
@@ -311,56 +343,6 @@ ParseInteger(int32 TextLength, char* Text)
 
     return Result;
 }
-
-/* ===============================
-    Standard, useful Win32 things
-   =============================== */
-/*
-    Some standard terminology:
-     - Filename: just a files's name (todo.txt)
-     - Filepath|path: file name + full directory
-     - Directory: full directory path
-*/
-#ifdef _WIN32
-
-    #include "windows.h"
-
-    #define WIN32_FILENAME_SIZE MAX_PATH
-        
-    inline FILETIME
-    Win32GetLastWriteTime(char *Filename)
-    {
-        FILETIME LastWriteTime = {};
-
-        WIN32_FILE_ATTRIBUTE_DATA FileAttributes;
-        if (GetFileAttributesExA(Filename, GetFileExInfoStandard, &FileAttributes))
-        {
-            LastWriteTime = FileAttributes.ftLastWriteTime;
-        }
-
-        return LastWriteTime;
-    }
-
-    void
-    Win32GetEXEPath(char* FilepathOut)
-    {
-        //TODO(chronister): test this and figure out if its even necessary
-        DWORD SizeOfFilename = GetModuleFileName(0, FilepathOut, WIN32_FILENAME_SIZE);
-    }
-
-#endif
-
-
-#ifdef __linux__
-
-    #include "fcntl.h"
-    #include "sys/stat.h"
-    #include "sys/types.h"
-    #include "unistd.h"
-    #include "pwd.h"
-    
-
-#endif
 
 #define CHR
 #endif

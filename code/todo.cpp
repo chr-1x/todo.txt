@@ -352,7 +352,7 @@ SerializeTodoFile(todo_file Todo)
         size_t TotalSize = 0;
         foreach(todo_item, Item, Todo.NumberOfItems, Todo.Items)
         {
-            TotalSize += GetItemStringSize(Item);
+            TotalSize += GetItemStringSize(*Item);
         }
 
         Result.ContentsSize = TotalSize;
@@ -363,11 +363,11 @@ SerializeTodoFile(todo_file Todo)
         {
             //TODO(chronister): Get a better foreach macro that doesn't require this redefinition
             Item = It;
-            size_t ItemLength = GetItemStringSize(Item);
+            size_t ItemLength = GetItemStringSize(*Item);
             size_t ItemBufferSize = ItemLength + 1;
             char* Serial = (char*)PlatformAllocMemory(ItemBufferSize, true);
             
-            SerializeTodoItem(Item, ItemBufferSize, Serial);
+            SerializeTodoItem(*Item, ItemBufferSize, Serial);
 
             Assert((RunningSize + ItemLength) <= TotalSize);
             CatStrings(RunningSize, Result.Contents, ItemLength, Serial, TotalSize, Result.Contents);
@@ -445,17 +445,17 @@ ListTodoItems(todo_file Todo, string* Query=0)
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
     foreach(todo_item, Line, Todo.NumberOfItems, Todo.Items)
     {
-        if (Line.Body.Length <= 1) { continue; } // Don't display blank lines
+        if (Line->Body.Length <= 1) { continue; } // Don't display blank lines
 
         if (Query)
         {
-            if (!ItemMatchesQuery(&Line, Query))
+            if (!ItemMatchesQuery(Line, Query))
             {
                 continue;
             }
         }
 
-        int32 LineWidth = Log10(Line.LineNumber);
+        int32 LineWidth = Log10(Line->LineNumber);
         for (int i = 0;
              i < MaxWidth - LineWidth;
              ++i)
@@ -463,15 +463,15 @@ ListTodoItems(todo_file Todo, string* Query=0)
             PrintFC(" ");
         }
 
-        string ColoredBody = Line.Body;
+        string ColoredBody = Line->Body;
 
-        int NumProjects = StringOccurrences(Line.Body, STR("+"));
+        int NumProjects = StringOccurrences(Line->Body, STR("+"));
         if (NumProjects > 0)
         {
             // _rgb`  ...   ` -- 6
-            ColoredBody.Capacity = Line.Body.Length + 6 * NumProjects + 1;
+            ColoredBody.Capacity = Line->Body.Length + 6 * NumProjects + 1;
             ColoredBody.Value = (char*)Alloc(ColoredBody.Capacity, true);
-            CopyString(Line.Body, &ColoredBody);
+            CopyString(Line->Body, &ColoredBody);
 
             string TempBody = STR((char*)Alloc(ColoredBody.Capacity, true), ColoredBody.Capacity);
 
@@ -522,14 +522,14 @@ ListTodoItems(todo_file Todo, string* Query=0)
             FreeString(&TempBody);
         }
 
-        PrintFC("|G`%d:` ", Line.LineNumber);
-        if (Line.Complete)
+        PrintFC("|G`%d:` ", Line->LineNumber);
+        if (Line->Complete)
         {
             PrintFC("x %s\n", ColoredBody.Value);
         }
-        else if (Line.Priority) 
+        else if (Line->Priority) 
         {
-			PrintFC("|RG`(%c)` %s\n", Line.Priority, ColoredBody.Value);
+			PrintFC("|RG`(%c)` %s\n", Line->Priority, ColoredBody.Value);
         }
         else
         {
@@ -548,7 +548,7 @@ ListTodoItems(string* Query=0)
 int64
 GetTodoItemIndexFromLineNumber(uint32 Number, todo_file Todo)
 {
-    todo_item* Result = null;
+    todo_item* Result = 0;
     //TODO(chronister): Make some kind of standard, somewhat efficient
     //  array search
     for (uint32 i = 0;
@@ -1043,7 +1043,7 @@ RunFromArguments(parse_args_result Args)
         {
             foreach(char*, It, Args.StringArgCount, Args.StringArgs)
             {
-                AddTodoItem(It);
+                AddTodoItem(*It);
             }
             if (Args.StringArgCount == 0)
             {
@@ -1074,7 +1074,7 @@ RunFromArguments(parse_args_result Args)
         {
             foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
             {
-                RemoveTodoItem(It);
+                RemoveTodoItem(*It);
             }
             if (Args.NumericArgCount == 0)
             {
@@ -1105,7 +1105,7 @@ RunFromArguments(parse_args_result Args)
         {
             foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
             {
-                PrioritizeTodoItem(It, 0);
+                PrioritizeTodoItem(*It, 0);
             }
             if (Args.NumericArgCount == 0)
             {
@@ -1117,7 +1117,7 @@ RunFromArguments(parse_args_result Args)
         {
             foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
             {
-                SetTodoItemCompletion(It, true);
+                SetTodoItemCompletion(*It, true);
             }
             if (Args.NumericArgCount == 0)
             {
@@ -1140,7 +1140,7 @@ RunFromArguments(parse_args_result Args)
                 {
                     foreach(char*, K, Args.StringArgCount, Args.StringArgs)
                     {
-                        string Keyword = STR(K);
+                        string Keyword = STR(*K);
                         if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
                         {
                             Keyword = CatStrings(STR("+"), Keyword);
@@ -1150,7 +1150,7 @@ RunFromArguments(parse_args_result Args)
                             Keyword = CatStrings(STR("@"), Keyword);
                         }
 
-                        AddKeyword(ItemNum, Keyword);
+                        AddKeyword(*ItemNum, Keyword);
                     }
                 }
             }
@@ -1183,7 +1183,7 @@ RunFromArguments(parse_args_result Args)
                 {
                     foreach(char*, K, Args.StringArgCount, Args.StringArgs)
                     {
-                        string Keyword = STR(K);
+                        string Keyword = STR(*K);
                         if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
                         {
                             Keyword = CatStrings(STR("+"), Keyword);

@@ -1,4 +1,4 @@
-#include "chr.h"
+#include "windows.h"
 #include "todo.cpp"
 #include "stdarg.h"
 #include "stdlib.h"
@@ -42,7 +42,7 @@ PlatformFileExists(char* Filepath)
 internal string
 PlatformGetUserDir()
 {
-    char Path[WIN32_FILENAME_SIZE];
+    char Path[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, Path))) 
     {
         string Result;
