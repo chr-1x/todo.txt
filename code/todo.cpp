@@ -2,16 +2,6 @@
 #include "chr_string.h"
 #include "platform_todo.h"
 
-/* Example usage:
-    t add|a "task [+category] [@context]"
-    t addm "Multi line things
-            add the things"
-    t list|ls [search]
-    t pri|p itemnumber priority
-    t depri|dp itemnumber
-    t replace itemnumber "taskalt"
-*/
-
 global_variable char* TodoBasename = "todo.txt";
 global_variable char* DoneBasename = "done.txt";
 
