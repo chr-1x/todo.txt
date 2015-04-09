@@ -26,7 +26,7 @@ CopyString(string Source, string* Dest)
 {
     Assert(Dest->Capacity >= Source.Capacity);
     Assert(Dest->Capacity > Source.Length);
-    CopyString(Source.Capacity, Source.Value, Dest->Capacity, Dest->Value);
+    CopyString(Source.Capacity-1, Source.Value, Dest->Capacity-1, Dest->Value);
     Dest->Length = Source.Length;
 }
 

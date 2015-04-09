@@ -1,5 +1,6 @@
 #include "chr.h"
 #include "chr_string.h"
+#include "chr_win32.h"
 #include "platform_todo.h"
 
 global_variable char* TodoBasename = "todo.txt";
@@ -8,7 +9,8 @@ global_variable char* DoneBasename = "done.txt";
 void* 
 Alloc(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
-    return PlatformAllocMemory(BytesToAlloc, ZeroTheMemory);
+    void* Result = PlatformAllocMemory(BytesToAlloc, ZeroTheMemory);
+    return Result;
 }
 
 bool32
@@ -225,18 +227,20 @@ ParseTodoLine(int32 LineNum, string Line)
     todo_item Item = {};
     Item.Priority = 0;
     Item.LineNumber = LineNum;
-    Item.Body = Line;
+    Item.Body = Item.Raw = Line;
 
     if (Line.Value[0] == '(' && Line.Value[2] == ')' && Line.Value[3] == ' ' && IsValidPriority(Line.Value[1]))
     {
         Item.Priority = Line.Value[1];
         Item.Body.Length -= 4;
+        Item.Body.Capacity -= 4;
         Item.Body.Value += 4;
     }
     if (Line.Value[0] == 'x' && Line.Value[1] == ' ')
     {
         Item.Complete = true;
         Item.Body.Length -= 2;
+        Item.Body.Capacity -= 2;
         Item.Body.Value += 2;
     }
 
@@ -386,6 +390,9 @@ GetTodoFile()
     if (Result.ContentsSize > 0)
     {
         Todo = ParseTodoFile(Result);   
+
+        PlatformFreeMemory(Result.Contents);
+        Result.Contents = 0;
     }
     Todo.Filename = Filename;
     return Todo;
@@ -400,9 +407,23 @@ GetDoneFile(string TodoFilename)
     if (Result.ContentsSize > 0)
     {
         Todo = ParseTodoFile(Result);   
+
+        PlatformFreeMemory(Result.Contents);
+        Result.Contents = 0;
     }
     Todo.Filename = Filename;
     return Todo;
+}
+
+void
+FreeTodoFile(todo_file* Todo)
+{
+    foreach(todo_item, Item, Todo->NumberOfItems, Todo->Items)
+    {
+        FreeString(&Item->Raw);
+    }
+    Free(Todo->Items);
+    Todo->NumberOfItems = 0;
 }
 
 bool32
@@ -458,49 +479,44 @@ ListTodoItems(todo_file Todo, string* Query=0)
         int NumProjects = StringOccurrences(Line->Body, STR("+"));
         if (NumProjects > 0)
         {
+            string Temp1 = {};
             // _rgb`  ...   ` -- 6
-            ColoredBody.Capacity = Line->Body.Length + 6 * NumProjects + 1;
-            ColoredBody.Value = (char*)Alloc(ColoredBody.Capacity, true);
-            CopyString(Line->Body, &ColoredBody);
+            Temp1.Capacity = Line->Body.Length + 6 * NumProjects + 1;
+            Temp1.Value = (char*)Alloc(Temp1.Capacity, true);
+            CopyString(Line->Body, &Temp1);
 
-            string TempBody = STR((char*)Alloc(ColoredBody.Capacity, true), ColoredBody.Capacity);
+            string Temp2 = STR((char*)Alloc(Temp1.Capacity, true), Temp1.Capacity);
 
             string KeywordColor = STR("|RGB`+");
 
             // Deal with a + in the first spot
-            if (ColoredBody.Value[0] == '+')
+            if (Temp1.Value[0] == '+')
             {
-                StringReplace(STR(ColoredBody.Value), &TempBody, 
+                StringReplace(STR(Temp1.Value), &Temp2, 
                     STR("+"), KeywordColor, 0, 1);
-                CopyString(TempBody, &ColoredBody);
+                CopyString(Temp2, &Temp1);
             }
 
-            int64 LastKeychar = 0;
+            int64 LastKeychar = -1;
             int64 LastSpace = 0;
             for (int i = 0;
                 i < NumProjects;
                 ++i)
             {
-                LastKeychar = StringIndexOf(ColoredBody, STR(" +"), LastSpace);
+                LastKeychar = StringIndexOf(Temp1, STR(" +"), LastSpace);
                 if (LastKeychar > 0)
                 {
-					StringReplace(STR(ColoredBody.Value), &TempBody, 
+					StringReplace(STR(Temp1.Value), &Temp2, 
 							STR("+"), KeywordColor, (int)LastSpace, 1);
-                    CopyString(TempBody, &ColoredBody);
+                    CopyString(Temp2, &Temp1);
 
-					StringReplace(ColoredBody, &TempBody, STR(" "), STR("` "), (int)LastKeychar + 1, 1);
-                    CopyString(TempBody, &ColoredBody);
+					StringReplace(Temp1, &Temp2, STR(" "), STR("` "), (int)LastKeychar + 1, 1);
+                    CopyString(Temp2, &Temp1);
 
-                    LastSpace = StringIndexOf(ColoredBody, STR(" "), LastKeychar + 1);
-                    int64 Endl = StringIndexOf(ColoredBody, STR("\0"), LastKeychar + 1);
+                    LastSpace = StringIndexOf(Temp1, STR(" "), LastKeychar + 1);
                     if (LastSpace < 0)
 					{
-						if (Endl > 0) { 
-    						LastSpace = Endl; 
-    					}
-                        else { 
-    						break; 
-    					}
+						break;
                     }
                 }
                 else
@@ -509,7 +525,8 @@ ListTodoItems(todo_file Todo, string* Query=0)
                 }
             }
 
-            FreeString(&TempBody);
+            ColoredBody = Temp1;
+            FreeString(&Temp2);
         }
 
         PrintFC("|G`%d:` ", Line->LineNumber);
@@ -525,6 +542,11 @@ ListTodoItems(todo_file Todo, string* Query=0)
         {
             PrintFC("%s\n", ColoredBody.Value);
         }
+
+        if (ColoredBody.Value != Line->Body.Value)
+        {
+            FreeString(&ColoredBody);
+        }
     }
 }
 void
@@ -533,6 +555,7 @@ ListTodoItems(string* Query=0)
     todo_file Todo = GetTodoFile();
     SortTodoItemList(Todo.NumberOfItems, Todo.Items, &CompareTodoItemPriority);
     ListTodoItems(Todo, Query);
+    FreeTodoFile(&Todo);
 }
 
 int64
@@ -999,6 +1022,7 @@ ParseArgs(int argc, char* argv[])
 internal int 
 RunFromArguments(parse_args_result Args)
 {
+	win32::PrintMemoryUsage("START");
     char* Usage = "Usage: todo action [task_number] [task_description]";
     char* Help = "Usage: todo action [task_number] [task_description]\n"
                  "Keep track of items you need to accomplish, organized by +project and @context\n"
@@ -1211,5 +1235,6 @@ RunFromArguments(parse_args_result Args)
         } break;
     }
 
+    win32::PrintMemoryUsage("END");
     return 0;
 }
