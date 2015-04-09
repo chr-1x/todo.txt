@@ -78,9 +78,15 @@ FreeString(string* Str)
 
 
 int64 
-StringIndexOf(string Haystack, string Needle, int64 StartIndex = 0)
+StringIndexOf(string Haystack, string Needle, int64 LowerBound = 0)
 {
-    return StringIndexOf(Haystack.Length, Haystack.Value, Needle.Length, Needle.Value, StartIndex);
+    return StringIndexOf(Haystack.Length, Haystack.Value, Needle.Length, Needle.Value, LowerBound);
+}
+
+int64 
+StringLastIndexOf(string Haystack, string Needle, int64 UpperBound = 0)
+{
+    return StringLastIndexOf(Haystack.Length, Haystack.Value, Needle.Length, Needle.Value, UpperBound);
 }
 
 int 

@@ -279,6 +279,11 @@ IsNumber(char C)
     return C >= '0' && C <= '9';
 }
 
+inline char
+DigitToChar(uint8 D)
+{
+    return D % 10 + '0';
+}
 
 int32 
 StringOccurrences(size_t SourceCount, char* Source, size_t SearchCount, char* Search, uint32 StartIndex = 0)

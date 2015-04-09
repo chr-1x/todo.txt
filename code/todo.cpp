@@ -1,6 +1,5 @@
 #include "chr.h"
 #include "chr_string.h"
-#include "chr_win32.h"
 #include "platform_todo.h"
 
 global_variable char* TodoBasename = "todo.txt";
@@ -835,7 +834,7 @@ RemoveKeyword(int32 ItemNum, string Keyword)
 
             int Replacements = StringReplace(&Item->Body, Keyword, STR(""));
             char Buffer[256];
-            sprintf_s(Buffer, 256, "Item |G`#%d` now reads |B`%s`, is this correct? >> ", Item->LineNumber, Item->Body.Value);
+            snprintf(Buffer, 256, "Item |G`#%d` now reads |B`%s`, is this correct? >> ", Item->LineNumber, Item->Body.Value);
             if (ConfirmAction(STR(Buffer)))
             {
                 if (Replacements > 0) 
@@ -1022,7 +1021,7 @@ ParseArgs(int argc, char* argv[])
 internal int 
 RunFromArguments(parse_args_result Args)
 {
-	win32::PrintMemoryUsage("START");
+	//win32::PrintMemoryUsage("START");
     char* Usage = "Usage: todo action [task_number] [task_description]";
     char* Help = "Usage: todo action [task_number] [task_description]\n"
                  "Keep track of items you need to accomplish, organized by +project and @context\n"
@@ -1235,6 +1234,6 @@ RunFromArguments(parse_args_result Args)
         } break;
     }
 
-    win32::PrintMemoryUsage("END");
+    //win32::PrintMemoryUsage("END");
     return 0;
 }

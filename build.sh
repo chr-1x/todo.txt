@@ -1,5 +1,3 @@
-#!/bin/sh
-
 
 echo =================================
 echo  Todo.txt Parser -- Build Script
