@@ -23,7 +23,7 @@ typedef uint64_t uint64;
 typedef float real32;
 typedef double real64;
 
-//TODO(chronister): Find platform-specific ways to do output (for educational purposes?)
+//TODO(chronister): Build custom output functions (For educational purposes?)
 #include "stdio.h"
 #define print printf
 
@@ -303,6 +303,26 @@ int32 StringOccurrences(char* Source, char* Search, uint32 StartIndex = 0)
     return StringOccurrences(StringLength(Source), Source, StringLength(Search), Search);
 }
 
+inline char
+CharToLower(char C)
+{
+    if (C >= 'A' && C <= 'Z')
+    {
+        return (C -  'A') + 'a';
+    }
+    return C;
+}
+
+void
+LowercaseString(char* String)
+{
+    for (char* C = String;
+        *C != '\0';
+        ++C)
+    {
+        *C = CharToLower(*C);
+    }
+}
 
 /* =====================
       Number Parsing 

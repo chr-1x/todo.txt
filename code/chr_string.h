@@ -138,7 +138,7 @@ StringReplace(string* Source, string Token, string Replacement,
     int OccurrenceCount = StringOccurrences(*Source, Token);
     if (OccurrenceCount > 0)
     {
-        size_t Delta = (Replacement.Length - Token.Length) * OccurrenceCount; // Remember, might be negative
+        int64 Delta = (Replacement.Length - Token.Length) * OccurrenceCount; // Remember, might be negative
         size_t NewLength = Source->Length + Delta;
 
         size_t DestLength = 0;

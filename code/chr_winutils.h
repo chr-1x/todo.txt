@@ -39,7 +39,7 @@ namespace win32
         return LastWriteTime;
     }
 
-    void
+    inline void
     GetEXEPath(char* FilepathOut)
     {
         //TODO(chronister): test this and figure out if its even necessary

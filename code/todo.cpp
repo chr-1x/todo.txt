@@ -88,20 +88,13 @@ ConfirmAction(string Prompt)
     do {
         PrintFC(Prompt.Value);
         Response = PlatformReadLine();
+        LowercaseString(Response.Value);
         //Let's test a truly rediculous number of options.
         if (CompareStrings(Response.Value, "y")
          || CompareStrings(Response.Value, "yes")
          || CompareStrings(Response.Value, "yeah")
          || CompareStrings(Response.Value, "ok")
-         || CompareStrings(Response.Value, "Y")
-         || CompareStrings(Response.Value, "Yes")
-         || CompareStrings(Response.Value, "Yeah")
-         || CompareStrings(Response.Value, "YES")
-         || CompareStrings(Response.Value, "YEAH")
-         || CompareStrings(Response.Value, "OK")
-         || CompareStrings(Response.Value, "okay")
-         || CompareStrings(Response.Value, "Okay")
-         || CompareStrings(Response.Value, "OKAY"))
+         || CompareStrings(Response.Value, "okay"))
         {
             Result = 1;
         }
@@ -109,19 +102,14 @@ ConfirmAction(string Prompt)
          || CompareStrings(Response.Value, "no")
          || CompareStrings(Response.Value, "nah")
          || CompareStrings(Response.Value, "nope")
-         || CompareStrings(Response.Value, "N")
-         || CompareStrings(Response.Value, "No")
-         || CompareStrings(Response.Value, "Nah")
-         || CompareStrings(Response.Value, "NO")
-         || CompareStrings(Response.Value, "NAH")
-         || CompareStrings(Response.Value, "Nope")
-         || CompareStrings(Response.Value, "NOPE"))
+         || CompareStrings(Response.Value, "quit")
+         || CompareStrings(Response.Value, "q"))
         {
             Result = 0;
         }
         else
         {
-            PrintFC("|r`%s` just won't do, try again.\n", Response.Value);
+            PrintFC("Yes or No (couldn't figure out |R`\"%s\"`), please try again.\n", Response.Value);
         }
     } while(Result < 0);
 
@@ -245,6 +233,7 @@ ParseTodoLine(int32 LineNum, string Line)
 
     if (Item.Body.Length > 0 && Item.Body.Value[Item.Body.Length - 1] == '\r')
     {
+        Item.Body.Value[Item.Body.Length - 1] = '\0';
         Item.Body.Length -= 1;
     }
 
@@ -858,7 +847,7 @@ RemoveKeyword(int32 ItemNum, string Keyword)
             }
             else
             {
-                PrintFC("Removal aborted.");
+                PrintFC("Removal aborted.\n");
             }
         }
         else 

@@ -9,7 +9,7 @@ echo.
 IF NOT EXIST build mkdir build
 pushd build
 
-set BASE_NAME=win32_todo
+set BASE_NAME=windows_todo
 set EXE_NAME=todo.exe
 
 set COMPAT= /MTd
@@ -19,7 +19,7 @@ set DEBUG= /FC /Z7 /Fm
 set DEFINES= /DMEMCOUNT=1
 set CL_OPTIONS= /nologo %COMPAT% %DEFINES% %OPTIMIZATION% %WARNINGS% %DEBUG%
 
-set CODE= ../../code/win32_todo.cpp
+set CODE= ../../code/windows_todo.cpp
 set LIBS= user32.lib shell32.lib
 set LINKER_SHARED= /incremental:no /opt:ref 
 set LINKER_64= /link %LINKER_SHARED% /subsystem:console,5.2
@@ -34,14 +34,14 @@ set ACTED=""
 :arg-top
 if "%~1" NEQ "" (
   if /i "%~1"=="clean" goto clean
-  if /i "%~1"=="x64"   goto x64
-  if /i "%~1"=="x86"   goto x86
+  if /i "%~1"=="win64"   goto win64
+  if /i "%~1"=="win32"   goto win32
   :args
   SHIFT
   goto :arg-top
 )
 if %ACTED%=="" (
-  goto x64
+  goto win64
 )
 goto :eof
 
@@ -52,10 +52,10 @@ set CLEAN="True"
 set ACTED="True"
 goto :args
 
-:x64
-echo Building x64
-IF NOT EXIST x64 mkdir x64
-pushd x64
+:win64
+echo Building win64
+IF NOT EXIST win64 mkdir win64
+pushd win64
 	if %CLEAN% NEQ "" del /Q . > NUL 2> NUL
 	del *.pdb > NUL 2> NUL
 	call "C:\Programs\Visual Studio 12.0\VC\vcvarsall.bat" amd64
@@ -66,10 +66,10 @@ set ACTED="True"
 echo.
 goto :args
 
-:x86
-echo Building x86
-IF NOT EXIST x86 mkdir x86
-pushd x86
+:win32
+echo Building win32
+IF NOT EXIST win32 mkdir win32
+pushd win32
 	if %CLEAN% NEQ "" del /Q . > NUL 2> NUL
 	del *.pdb > NUL 2> NUL
 	call "C:\Programs\Visual Studio 12.0\VC\vcvarsall.bat" amd64_x86

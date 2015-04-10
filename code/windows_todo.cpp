@@ -1,9 +1,12 @@
 #include "windows.h"
-#include "todo.cpp"
 
-#include "chr_win32.h"
 #include "stdarg.h"
 #include "stdlib.h"
+
+#define snprintf sprintf_s
+
+#include "todo.cpp"
+#include "chr_winutils.h"
 
 global_variable HANDLE MyHeap;
 global_variable HANDLE ConsoleOut;

@@ -217,7 +217,7 @@ PlatformReadLine()
 	char Buffer[256]; //TODO(chronister): The size of this buffer
 
 	scanf("%s", Buffer);
-	Result.Length = StringLength(Buffer) - 1;
+	Result.Length = StringLength(Buffer);
 	Result.Capacity = Result.Length + 1;
 	Result.Value = (char*)Alloc(Result.Capacity);
 	CopyString(256, Buffer, Result.Length, Result.Value);
