@@ -779,7 +779,7 @@ AddKeyword(int32 ItemNum, string Keyword)
 
         if (SaveTodoFile(Todo))
         {
-            PrintFC("Added _rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
+            PrintFC("Added |---_rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
         }
     }
     else
@@ -812,10 +812,12 @@ RemoveKeyword(int32 ItemNum, string Keyword)
                     {
                         Assert(EndIndex > StartIndex);
                         
-                        Keyword = CopyString(Item->Body);
-                        Keyword.Value[EndIndex] = '\0';
-                        Keyword.Value += StartIndex;
+                        //TODO(chronister): I think this is literally a Substring/Slice method
+                        Keyword;
                         Keyword.Length = EndIndex - StartIndex;
+                        Keyword.Capacity = Keyword.Length + 1;
+                        Keyword.Value = (char*)Alloc(Keyword.Capacity);
+                        CopyString(Keyword.Length, Item->Body.Value, Keyword.Length, Keyword.Value);                        
                     }
                 }
             }
@@ -832,7 +834,7 @@ RemoveKeyword(int32 ItemNum, string Keyword)
                     {
                         if (Replacements == 1)
                         {
-                            PrintFC("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
+                            PrintFC("Removed |---_rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
                         }
                         else
                         {

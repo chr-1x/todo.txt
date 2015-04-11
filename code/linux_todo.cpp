@@ -80,7 +80,7 @@ PlatformAppendToFile(char* Filename, size_t StringSize, char* StringToAppend)
 internal bool32
 PlatformWriteEntireFile(char* Filename, size_t StringSize, char* StringToWrite)
 {
-	int fd = open (Filename, O_WRONLY|O_CREAT, 0666);
+	int fd = open (Filename, O_WRONLY|O_CREAT|O_TRUNC, 0666);
 	int written = write(fd, StringToWrite, StringSize);
 	close(fd);
 	return (written == StringSize);
@@ -108,7 +108,7 @@ PlatformColorPrint(size_t Length, char* String)
 {
 	//int Result = write(STDOUT_FILENO, String, Length);	
 	//printf("\033[31mtest");
-	write(STDOUT_FILENO, "\033[37m", 5);
+	write(STDOUT_FILENO, "\033[39;49m", 8);
 	
 	string Dest;
 	int NumCodes = StringOccurrences(Length, String, 1, "`");
@@ -143,14 +143,12 @@ PlatformColorPrint(size_t Length, char* String)
 		}
 		else
 		{
-			ansiFg = 7;
+			ansiFg = 9;
 			PrevFgCode = -1; // So that StartOfSeq will be computed properly
 		}
 
-		bool32 WriteBack = false;
 		if (PrevBgCode >= 0 && PrevBgCode > LastControlChar && LastControlChar - PrevBgCode <= 7)
 		{ 
-			WriteBack = true;
 			if      (StringIndexOf(4, String + PrevBgCode, 1, "R") >= 0) { ansiBg |= 0x1; BgIntense = true; }
 			else if (StringIndexOf(4, String + PrevBgCode, 1, "r") >= 0) { ansiBg |= 0x1; }
 			if      (StringIndexOf(4, String + PrevBgCode, 1, "G") >= 0) { ansiBg |= 0x2; BgIntense = true; }
@@ -160,6 +158,7 @@ PlatformColorPrint(size_t Length, char* String)
 		}
 		else
 		{
+			ansiBg = 9;
 			PrevBgCode = -1; // So that StartOfSeq will be computed properly
 		}
 
@@ -175,12 +174,9 @@ PlatformColorPrint(size_t Length, char* String)
 		else			{ write(STDOUT_FILENO, "3", 1); }
 		write(STDOUT_FILENO, &FgChar, 1);
 
-		if (WriteBack)
-		{
-			if (BgIntense) 	{ write(STDOUT_FILENO, ";10", 3); }
-			else			{ write(STDOUT_FILENO, ";4", 2); }
-			write(STDOUT_FILENO, &BgChar, 1);
-		}
+		if (BgIntense) 	{ write(STDOUT_FILENO, ";10", 3); }
+		else			{ write(STDOUT_FILENO, ";4", 2); }
+		write(STDOUT_FILENO, &BgChar, 1);
 
 		write(STDOUT_FILENO, "m", 1);
 		// /write(STDOUT_FILENO, &FgChar, 1);
@@ -188,6 +184,7 @@ PlatformColorPrint(size_t Length, char* String)
 		LastControlChar = NextControlChar;
 	}
 	write(STDOUT_FILENO, String + LastControlChar + 1, Length - LastControlChar - 1);
+	write(STDOUT_FILENO, "\033[39;49m", 8);
 
 	return true; //TODO(chronister): Error checking
 }

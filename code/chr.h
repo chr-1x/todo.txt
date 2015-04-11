@@ -285,11 +285,11 @@ DigitToChar(uint8 D)
     return D % 10 + '0';
 }
 
-int32 
+uint32 
 StringOccurrences(size_t SourceCount, char* Source, size_t SearchCount, char* Search, uint32 StartIndex = 0)
 {
     int64 Index = StartIndex;
-    int Occurrences = 0;
+    uint32 Occurrences = 0;
     while ((Index = StringIndexOf(SourceCount, Source, SearchCount, Search, Index+1)) >= 0)
     {   
         ++Occurrences;
@@ -298,7 +298,7 @@ StringOccurrences(size_t SourceCount, char* Source, size_t SearchCount, char* Se
     return Occurrences;
 }
 
-int32 StringOccurrences(char* Source, char* Search, uint32 StartIndex = 0)
+uint32 StringOccurrences(char* Source, char* Search, uint32 StartIndex = 0)
 {
     return StringOccurrences(StringLength(Source), Source, StringLength(Search), Search);
 }

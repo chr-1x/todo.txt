@@ -89,17 +89,18 @@ StringLastIndexOf(string Haystack, string Needle, int64 UpperBound = 0)
     return StringLastIndexOf(Haystack.Length, Haystack.Value, Needle.Length, Needle.Value, UpperBound);
 }
 
-int 
+uint32 
 StringOccurrences(string Source, string Search, uint32 StartIndex = 0)
 {
     return StringOccurrences(Source.Length, Source.Value, Search.Length, Search.Value, StartIndex);
 }
 
-int StringReplace(string Source, string* Dest, string Token, string Replacement, int StartIndex, int OccurrencesToReplace = -1){
-    int OccurrenceCount = Min(StringOccurrences(Source, Token, StartIndex), OccurrencesToReplace);
+uint32
+StringReplace(string Source, string* Dest, string Token, string Replacement, int StartIndex, int OccurrencesToReplace = -1){
+    uint32 OccurrenceCount = Min(StringOccurrences(Source, Token, StartIndex), (uint32)OccurrencesToReplace);
     if (OccurrenceCount > 0)
     {
-        size_t Delta = (Replacement.Length - Token.Length) * OccurrenceCount; // Remember, might be negative
+        int64 Delta = (Replacement.Length - Token.Length) * OccurrenceCount; // Remember, might be negative
         size_t NewLength = Source.Length + Delta;
 
         Assert(Dest->Capacity > NewLength);
@@ -107,7 +108,7 @@ int StringReplace(string Source, string* Dest, string Token, string Replacement,
         size_t LastIndex = StartIndex;
         int64 NextIndex = StartIndex - 1;
         size_t NewStringIndex = StartIndex;
-        while ((NextIndex = StringIndexOf(Source.Length, Source.Value, Token.Length, Token.Value, (int)NextIndex+1)) >= 0 && OccurrencesToReplace-- > 0)
+        while ((NextIndex = StringIndexOf(Source.Length, Source.Value, Token.Length, Token.Value, (int)NextIndex+1)) >= 0 && OccurrenceCount-- > 0)
         {
             //Copy in from the original string, up to the next token occurrence
             CopyString(NextIndex - LastIndex, Source.Value + LastIndex, NextIndex - LastIndex, Dest->Value + NewStringIndex);
@@ -130,12 +131,11 @@ int StringReplace(string Source, string* Dest, string Token, string Replacement,
     return OccurrenceCount;
 }
 
-
-int 
+uint32 
 StringReplace(string* Source, string Token, string Replacement, 
             int StartIndex = 0, int OccurrencesToReplace = -1)
 {
-    int OccurrenceCount = StringOccurrences(*Source, Token);
+    uint32 OccurrenceCount = StringOccurrences(*Source, Token);
     if (OccurrenceCount > 0)
     {
         int64 Delta = (Replacement.Length - Token.Length) * OccurrenceCount; // Remember, might be negative
@@ -149,9 +149,7 @@ StringReplace(string* Source, string Token, string Replacement,
         StringReplace(*Source, &Dest,
                       Token, Replacement, 
                       StartIndex, OccurrencesToReplace);
-        Source->Value = DestValue;
-        Source->Capacity = DestCapacity;
-        Source->Length = DestLength;
+		*Source = Dest;
     }
 
     return OccurrenceCount;
