@@ -17,7 +17,7 @@ internal void*
 PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
     void* Result = HeapAlloc(MyHeap, ZeroTheMemory ? HEAP_ZERO_MEMORY : 0, BytesToAlloc);
-    win32::PrintDebug("ALLOC\t%p\t%d\n", Result, BytesToAlloc);
+    //win32::PrintDebug("ALLOC\t%p\t%d\n", Result, BytesToAlloc);
     memset(Result, 0xBC, BytesToAlloc);
     return Result;
 }
@@ -26,7 +26,7 @@ internal bool32
 PlatformFreeMemory(void* Memory)
 {
     bool32 Result = false;
-    win32::PrintDebug("FREE\t%p\n", Memory);
+    //win32::PrintDebug("FREE\t%p\n", Memory);
     if (Memory) {
         Result = HeapFree(MyHeap, 0, Memory);
     }
