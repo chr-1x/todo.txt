@@ -1168,7 +1168,7 @@ RunFromArguments(parse_args_result Args)
         case CMD_REMOVE_PROJ:
         case CMD_REMOVE_CTX:
         {
-            if (Args.NumericArgCount == 1)
+            if (Args.NumericArgCount >= 1)
             {
                 if (Args.StringArgCount == 0)
                 {
@@ -1185,18 +1185,21 @@ RunFromArguments(parse_args_result Args)
                 }
                 else
                 {
-                    foreach(char*, K, Args.StringArgCount, Args.StringArgs)
+                    foreach (int32, N, Args.NumericArgCount, Args.NumericArgs)
                     {
-                        string Keyword = STR(*K);
-                        if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
+                        foreach(char*, K, Args.StringArgCount, Args.StringArgs)
                         {
-                            Keyword = CatStrings(STR("+"), Keyword);
+                            string Keyword = STR(*K);
+                            if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
+                            {
+                                Keyword = CatStrings(STR("+"), Keyword);
+                            }
+                            else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
+                            {
+                                Keyword = CatStrings(STR("@"), Keyword);
+                            }
+                            RemoveKeyword(*N, Keyword);
                         }
-                        else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
-                        {
-                            Keyword = CatStrings(STR("@"), Keyword);
-                        }
-                        RemoveKeyword(Args.NumericArgs[0], Keyword);
                     }
                 }
             }
