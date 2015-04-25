@@ -1125,7 +1125,7 @@ RunFromArguments(parse_args_result Args)
             }
             if (Args.NumericArgCount == 0)
             {
-                PrintFC("Please supply at least one item number to deprioritize.\n");
+                PrintFC("Please supply at least one item number to complete.\n");
             }
         } break;
 
