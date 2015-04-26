@@ -3,10 +3,8 @@
 #include "stdarg.h"
 #include "stdlib.h"
 
-#define snprintf sprintf_s
-
-#include "todo.cpp"
 #include "chr_winutils.h"
+#include "todo.cpp"
 
 global_variable HANDLE MyHeap;
 global_variable HANDLE ConsoleOut;

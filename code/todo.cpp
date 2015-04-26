@@ -264,7 +264,7 @@ ParseTodoFile(read_file_result File)
 			string Line = {};
 			Line.Length = End - Start;
 			Line.Capacity = Line.Length + 1;
-            Line.Value = (char*)Alloc(Line.Capacity);
+            Line.Value = (char*)Alloc(Line.Capacity, false);
             CopyString(Line.Length, Start, Line.Length, Line.Value);
 
             Todo.Items[LineNum] = ParseTodoLine(LineNum+1, Line);
@@ -816,7 +816,7 @@ RemoveKeyword(int32 ItemNum, string Keyword)
                         Keyword;
                         Keyword.Length = EndIndex - StartIndex;
                         Keyword.Capacity = Keyword.Length + 1;
-                        Keyword.Value = (char*)Alloc(Keyword.Capacity);
+                        Keyword.Value = (char*)Alloc(Keyword.Capacity, false);
                         CopyString(Keyword.Length, Item->Body.Value, Keyword.Length, Keyword.Value);                        
                     }
                 }
