@@ -12,6 +12,9 @@
 #include "cstdlib"
 #include "stdarg.h"
 
+
+//TODO(chronister): Move this stuff out into a linux platform layer file in chr!
+
 //TODO(chronister): Low level linux allocation?`
 internal void* 
 PlatformAllocMemory(size_t BytesToAlloc, bool32 ZeroTheMemory)

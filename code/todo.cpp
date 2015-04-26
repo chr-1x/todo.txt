@@ -1,6 +1,6 @@
 #include "chr.h"
 #include "chr_string.h"
-#include "platform_todo.h"
+#include "todo.h"
 
 global_variable char* TodoBasename = "todo.txt";
 global_variable char* DoneBasename = "done.txt";
@@ -8,14 +8,14 @@ global_variable char* DoneBasename = "done.txt";
 void* 
 Alloc(size_t BytesToAlloc, bool32 ZeroTheMemory)
 {
-    void* Result = PlatformAllocMemory(BytesToAlloc, ZeroTheMemory);
+    void* Result = plat::Alloc(BytesToAlloc, ZeroTheMemory);
     return Result;
 }
 
 bool32
 Free(void* Memory)
 {
-    return PlatformFreeMemory(Memory);
+    return plat::Free(Memory);
 }
 //NOTE(chronister): This function returns whether or not Filename was found
 // in either pwd or user home dir. If it wasn't (returns false), the program
@@ -24,7 +24,7 @@ Free(void* Memory)
 internal string
 ConstructLocalFilepath(string Filename)
 {
-    if (PlatformFileExists(Filename.Value))
+    if (plat::FileExists(Filename.Value))
     {    
         //TODO(chronister): Do we want to expand the current directory to the full path?
         return Filename;
@@ -32,7 +32,7 @@ ConstructLocalFilepath(string Filename)
 
     // We assume this is a well formed, existing directory
     // that looks like "C:/Users/Steve/" or "/home/steve/"
-    string UserDir = PlatformGetUserDir(); 
+    string UserDir = plat::GetUserDir(); 
     string ConstructedPath = CatStrings(UserDir, Filename);
     return ConstructedPath;
 }
@@ -58,7 +58,7 @@ ReplaceFilenameInFilepath(string Filepath, string ReplacementName)
     size_t DirLen = OnePastLastSlash - Filepath.Value;
     string Result;
     Result.Length = (uint32)DirLen + ReplacementName.Length;
-    Result.Value = (char*)PlatformAllocMemory(Result.Length);
+    Result.Value = (char*)plat::Alloc(Result.Length);
     CatStrings(DirLen, Filepath.Value, ReplacementName.Length, ReplacementName.Value, Result.Length, Result.Value);
     return Result;
 }
@@ -87,7 +87,7 @@ ConfirmAction(string Prompt)
 
     do {
         PrintFC(Prompt.Value);
-        Response = PlatformReadLine();
+        Response = plat::ReadLine();
         LowercaseString(Response.Value);
         //Let's test a truly rediculous number of options.
         if (CompareStrings(Response.Value, "y")
@@ -190,7 +190,7 @@ CompareTodoItemLineNum(todo_item A, todo_item B)
 
 
 internal int32
-GetNumberOfLines(read_file_result File)
+GetNumberOfLines(plat::read_file_result File)
 {
     uint32 LineCount = 0;
     char* Begin = (char*)File.Contents;
@@ -241,12 +241,12 @@ ParseTodoLine(int32 LineNum, string Line)
 }
 
 internal todo_file
-ParseTodoFile(read_file_result File)
+ParseTodoFile(plat::read_file_result File)
 {
     todo_file Todo = {0};
 
     Todo.NumberOfItems = GetNumberOfLines(File);
-    Todo.Items = (todo_item*)PlatformAllocMemory(sizeof(todo_item)*Todo.NumberOfItems);
+    Todo.Items = (todo_item*)plat::Alloc(sizeof(todo_item)*Todo.NumberOfItems);
 
     uint32 LineNum = 0;
     char* Begin = (char*)File.Contents;
@@ -323,10 +323,10 @@ SerializeTodoItem(todo_item Item, size_t ResultLength, char* Result)
     }
 }
 
-internal read_file_result
+internal plat::read_file_result
 SerializeTodoFile(todo_file Todo)
 {
-    read_file_result Result = {};
+    plat::read_file_result Result = {};
     if (Todo.NumberOfItems > 0)
     {
         SortTodoItemList(Todo.NumberOfItems, Todo.Items, &CompareTodoItemLineNum);
@@ -338,7 +338,8 @@ SerializeTodoFile(todo_file Todo)
         }
 
         Result.ContentsSize = TotalSize;
-        Result.Contents = (char*)PlatformAllocMemory(TotalSize);
+        Result.Contents = plat::Alloc(TotalSize);
+        char* ResultContents = (char*)Result.Contents;
 
         size_t RunningSize = 0;
         foreach(todo_item, It, Todo.NumberOfItems, Todo.Items)
@@ -347,21 +348,21 @@ SerializeTodoFile(todo_file Todo)
             Item = It;
             size_t ItemLength = GetItemStringSize(*Item);
             size_t ItemBufferSize = ItemLength + 1;
-            char* Serial = (char*)PlatformAllocMemory(ItemBufferSize, true);
+            char* Serial = (char*)plat::Alloc(ItemBufferSize, true);
             
             SerializeTodoItem(*Item, ItemBufferSize, Serial);
 
             Assert((RunningSize + ItemLength) <= TotalSize);
-            CatStrings(RunningSize, Result.Contents, ItemLength, Serial, TotalSize, Result.Contents);
+            CatStrings(RunningSize, (char*)Result.Contents, ItemLength, Serial, TotalSize, (char*)Result.Contents);
             RunningSize += ItemLength;
 
-			PlatformFreeMemory(Serial);
+			plat::Free(Serial);
         }
 
         //Eliminate trailing newlines
-        if (Result.Contents[Result.ContentsSize - 1] == '\n')
+        if (ResultContents[Result.ContentsSize - 1] == '\n')
         {
-            Result.Contents[Result.ContentsSize - 1] = 0;
+            ResultContents[Result.ContentsSize - 1] = 0;
             Result.ContentsSize -= 1;
         }
     }
@@ -373,14 +374,13 @@ todo_file
 GetTodoFile()
 {
     string Filename = GetTodoFilename();
-    read_file_result Result = PlatformReadEntireFile(Filename.Value);
+    plat::read_file_result Result = plat::ReadEntireFile(Filename.Value);
     todo_file Todo = {};
     if (Result.ContentsSize > 0)
     {
         Todo = ParseTodoFile(Result);   
 
-        PlatformFreeMemory(Result.Contents);
-        Result.Contents = 0;
+        plat::FreeFile(Result);
     }
     Todo.Filename = Filename;
     return Todo;
@@ -390,13 +390,13 @@ todo_file
 GetDoneFile(string TodoFilename)
 {
     string Filename = GetDoneFilename(TodoFilename);
-    read_file_result Result = PlatformReadEntireFile(Filename.Value);
+    plat::read_file_result Result = plat::ReadEntireFile(Filename.Value);
     todo_file Todo = {0};
     if (Result.ContentsSize > 0)
     {
         Todo = ParseTodoFile(Result);   
 
-        PlatformFreeMemory(Result.Contents);
+        plat::Free(Result.Contents);
         Result.Contents = 0;
     }
     Todo.Filename = Filename;
@@ -417,15 +417,15 @@ FreeTodoFile(todo_file* Todo)
 bool32
 SaveTodoFile(todo_file Todo)
 {
-    read_file_result Serialized = SerializeTodoFile(Todo);
-    return PlatformWriteEntireFile(Todo.Filename.Value, Serialized.ContentsSize, Serialized.Contents);
+    plat::read_file_result Serialized = SerializeTodoFile(Todo);
+    return plat::WriteEntireFile(Todo.Filename.Value, Serialized.ContentsSize, (char*)Serialized.Contents);
 }
 
 bool32
 SaveDoneFile(todo_file Done)
 {
-    read_file_result Serialized = SerializeTodoFile(Done);
-    return PlatformWriteEntireFile(Done.Filename.Value, Serialized.ContentsSize, Serialized.Contents);
+    plat::read_file_result Serialized = SerializeTodoFile(Done);
+    return plat::WriteEntireFile(Done.Filename.Value, Serialized.ContentsSize, (char*)Serialized.Contents);
 }
 
 bool32 ItemMatchesQuery(todo_item* Item, string* Query)
@@ -438,7 +438,7 @@ ListTodoItems(todo_file Todo, string* Query=0)
 {
     if (Todo.NumberOfItems <= 0)
     {
-        PrintFC("|r`No items to do!\n");
+        PrintFC("|R`No items to do!\n");
         return;
     }
     int32 MaxWidth = Log10(Todo.NumberOfItems) + 1;
@@ -569,9 +569,9 @@ AddTodoItem(todo_item Item)
 {
     todo_file Todo = GetTodoFile();
     todo_item* OldItems = Todo.Items;
-    todo_item* NewItems = (todo_item*)PlatformAllocMemory((Todo.NumberOfItems + 1)*sizeof(todo_item));
+    todo_item* NewItems = (todo_item*)plat::Alloc((Todo.NumberOfItems + 1)*sizeof(todo_item));
     CopyMemory(NewItems, OldItems, (Todo.NumberOfItems)*sizeof(todo_item));
-    PlatformFreeMemory((void*)OldItems);
+    plat::Free((void*)OldItems);
     Todo.Items = NewItems;
     Item.LineNumber = Todo.NumberOfItems+1;
     Todo.Items[Todo.NumberOfItems] = Item;
@@ -730,7 +730,7 @@ ArchiveCompletedItems()
     todo_file Done = GetDoneFile(Todo.Filename);
 
     uint32 AllCompletedItems = Done.NumberOfItems + CountCompletedItems(Todo);
-    todo_item* CompletedItemList = (todo_item*)PlatformAllocMemory(AllCompletedItems * sizeof(todo_item));
+    todo_item* CompletedItemList = (todo_item*)plat::Alloc(AllCompletedItems * sizeof(todo_item));
 
     size_t DoneItemsBytes = Done.NumberOfItems*sizeof(todo_item);
 
@@ -863,6 +863,33 @@ RemoveKeyword(int32 ItemNum, string Keyword)
     }
 }
 
+internal void
+InitializeTodoFile()
+{
+    string CurrentDirectory = plat::GetCurrentDirectory();
+
+    string TodoFilename = FormatString("%s/%s", CurrentDirectory.Value, TodoBasename);
+
+    if (plat::FileExists(TodoFilename.Value))
+    {
+        PrintFC("|R`todo.txt already exists here!");
+    }
+    else
+    {
+        if (plat::WriteEntireFile(TodoFilename.Value, 0, ""))
+        {
+            PrintFC("|G`Created todo.txt in current directory.");
+        }
+        else
+        {
+            PrintFC("|R`Unable to create todo.txt!");
+        }    
+    }
+    
+    FreeString(&TodoFilename);
+    FreeString(&CurrentDirectory);
+}
+
 internal parse_args_result 
 ParseArgs(int argc, char* argv[])
 {
@@ -977,6 +1004,11 @@ ParseArgs(int argc, char* argv[])
                       || CompareStrings(Arg, "rc"))
                 {
                     Result.Command = CMD_REMOVE_CTX;
+                }
+                else if (CompareStrings(Arg, "init")
+                      || CompareStrings(Arg, "in"))
+                {
+                    Result.Command = CMD_INIT;
                 }
                 else
                 {
@@ -1212,6 +1244,11 @@ RunFromArguments(parse_args_result Args)
         case CMD_HELP:
         {
             PrintFC(Help);
+        } break;
+
+        case CMD_INIT:
+        {
+            InitializeTodoFile();
         } break;
 
         default:

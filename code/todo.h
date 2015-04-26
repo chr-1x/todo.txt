@@ -16,13 +16,6 @@ struct todo_file
     string Filename;
 };
 
-//TODO(chronister): For this purpose could this just be a string?
-struct read_file_result
-{
-    size_t ContentsSize;
-    char* Contents;
-};
-
 enum command 
 {
     CMD_UNKNOWN,
@@ -40,7 +33,8 @@ enum command
     CMD_ADD_CTX,
     CMD_REMOVE_KW,
     CMD_REMOVE_PROJ,
-    CMD_REMOVE_CTX
+    CMD_REMOVE_CTX,
+    CMD_INIT
 };
 #define FLAG_HELP 0x00000001
 #define FLAG_REMOVE_BLANK_LINES 0x00000010

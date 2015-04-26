@@ -1,3 +1,5 @@
 init command
 More colors!
 x Crash on archive
+See if its possible to change output format based on console screen height
+crash bug on add after writing file
