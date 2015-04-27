@@ -34,6 +34,7 @@ ConstructLocalFilepath(string Filename)
     // that looks like "C:/Users/Steve/" or "/home/steve/"
     string UserDir = plat::GetUserDir(); 
     string ConstructedPath = CatStrings(UserDir, Filename);
+    FreeString(&UserDir);
     return ConstructedPath;
 }
 
@@ -77,43 +78,6 @@ GetDoneFilename(string TodoFilename)
     // So it needs a way to know which todo.txt is active and use the same directory as that. 
     string DoneStr = ReplaceFilenameInFilepath(TodoFilename, STR(DoneBasename));
     return DoneStr;
-}
-
-bool32 
-ConfirmAction(string Prompt)
-{
-    int32 Result = -1;
-    string Response;
-
-    do {
-        PrintFC(Prompt.Value);
-        Response = plat::ReadLine();
-        LowercaseString(Response.Value);
-        //Let's test a truly rediculous number of options.
-        if (CompareStrings(Response.Value, "y")
-         || CompareStrings(Response.Value, "yes")
-         || CompareStrings(Response.Value, "yeah")
-         || CompareStrings(Response.Value, "ok")
-         || CompareStrings(Response.Value, "okay"))
-        {
-            Result = 1;
-        }
-        else if (CompareStrings(Response.Value, "n")
-         || CompareStrings(Response.Value, "no")
-         || CompareStrings(Response.Value, "nah")
-         || CompareStrings(Response.Value, "nope")
-         || CompareStrings(Response.Value, "quit")
-         || CompareStrings(Response.Value, "q"))
-        {
-            Result = 0;
-        }
-        else
-        {
-            PrintFC("Yes or No (couldn't figure out |R`\"%s\"`), please try again.\n", Response.Value);
-        }
-    } while(Result < 0);
-
-    return Result > 0;
 }
 
 inline bool32 
@@ -337,8 +301,8 @@ SerializeTodoFile(todo_file Todo)
             TotalSize += GetItemStringSize(*Item);
         }
 
-        Result.ContentsSize = TotalSize;
-        Result.Contents = plat::Alloc(TotalSize);
+        Result.ContentsSize = TotalSize + 1;
+        Result.Contents = plat::Alloc(Result.ContentsSize);
         char* ResultContents = (char*)Result.Contents;
 
         size_t RunningSize = 0;
@@ -396,7 +360,7 @@ GetDoneFile(string TodoFilename)
     {
         Todo = ParseTodoFile(Result);   
 
-        plat::Free(Result.Contents);
+        plat::FreeFile(Result);
         Result.Contents = 0;
     }
     Todo.Filename = Filename;
@@ -609,105 +573,84 @@ UnorderedRemoveTodoItemFromList(uint32* ListLength, todo_item* List, uint32 Item
     return false;
 }
 
+#define LoadTodo(Todo, ItemIndex) \
+    todo_file Todo = GetTodoFile(); \
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo); \
+    if (ItemIndex < 0) { \
+        PrintFC("|r`Unable to find item #%d.\n", ItemNum); \
+        return; \
+    }
+
+
+#define SaveTodo(Todo) \
+    if (!SaveTodoFile(Todo)) { \
+        PrintFC("Unable to save todo file!\n"); \
+        return; \
+    }
+
 void
 RemoveTodoItem(int32 ItemNum)
 {
-    todo_file Todo = GetTodoFile();
+    LoadTodo(Todo, ItemIndex);
+    
+    todo_item* Item = &Todo.Items[ItemIndex];
+    if (!UnorderedRemoveTodoItemFromList(&Todo.NumberOfItems, Todo.Items, (uint32)ItemIndex)) 
+    {
+        PrintFC("|R`Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
+        return;
+    }
 
-    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
-    if (ItemIndex >= 0)
-    {
-        todo_item* Item = &Todo.Items[ItemIndex];
-        if (UnorderedRemoveTodoItemFromList(&Todo.NumberOfItems, Todo.Items, (uint32)ItemIndex)) 
-        {
-            if (SaveTodoFile(Todo))
-            {
-                PrintFC("Removed item |G`#%d`.\n", ItemNum);
-            }
-        }
-        else
-        {
-            PrintFC("|R`Unable to remove item #%d for some reason. Please debug.\n", Item->LineNumber);
-        }
-    }
-    else
-    {
-        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
-    }
+    SaveTodo(Todo);
+
+    PrintFC("Removed item |G`#%d`.\n", ItemNum);
+    return;
 }
 
 void
 PrioritizeTodoItem(int32 ItemNum, char Priority)
 {
-    todo_file Todo = GetTodoFile();
+    LoadTodo(Todo, ItemIndex);
 
-    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
-    if (ItemIndex >= 0)
-    {  
-        todo_item* Item = &Todo.Items[ItemIndex];
-        Item->Priority = Priority;
+    todo_item* Item = &Todo.Items[ItemIndex];
+    Item->Priority = Priority;
 
-        if (SaveTodoFile(Todo))
-        {
-            if (Priority)
-            {
-                PrintFC("Set the priority of item |G`#%d` to |RG`(%c)`.\n", Item->LineNumber, Item->Priority);
-            }
-            else
-            {
-                PrintFC("Deprioritized item |G`#%d`.\n", Item->LineNumber, Item->Priority);
-            }
-        }
+    SaveTodo(Todo);
+
+    if (Priority)
+    {
+        PrintFC("Set the priority of item |G`#%d` to |RG`(%c)`.\n", Item->LineNumber, Item->Priority);
     }
     else
     {
-        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
+        PrintFC("Deprioritized item |G`#%d`.\n", Item->LineNumber, Item->Priority);
     }
+    return;
 }
 
-//TODO(chronister): This is the third time this pattern has appeared! Compress it!
 void
 SetTodoItemCompletion(int32 ItemNum, bool32 Complete)
 {
-    todo_file Todo = GetTodoFile();
+    LoadTodo(Todo, ItemIndex);
 
-    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
-    if (ItemIndex >= 0)
-    {  
-        todo_item* Item = &Todo.Items[ItemIndex];
-        Item->Complete = Complete;
+    todo_item* Item = &Todo.Items[ItemIndex];
+    Item->Complete = Complete;
 
-        if (SaveTodoFile(Todo))
-        {
-            PrintFC("Completed item |G`#%d`.\n", Item->LineNumber, Item->Priority);
-        }
-    }
-    else
-    {
-        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
-    }
+    SaveTodo(Todo);
+
+    PrintFC("Completed item |G`#%d`.\n", Item->LineNumber, Item->Priority);
 }
 
 void
 EditTodoItem(int32 ItemNum, string NewText)
 {
-    todo_file Todo = GetTodoFile();
+    LoadTodo(Todo, ItemIndex);
 
-    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
-    if (ItemIndex >= 0)
-    {  
-        todo_item* Item = &Todo.Items[ItemIndex];
-        Item->Body = NewText;
+    todo_item* Item = &Todo.Items[ItemIndex];
+    Item->Body = NewText;
 
-        if (SaveTodoFile(Todo))
-        {
-            PrintFC("Edited item |G`#%d`.\n", Item->LineNumber);
-        }
-    }
-    else
-    {
-        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
-    }
+    SaveTodo(Todo);
+
+    PrintFC("Edited item |G`#%d`.\n", Item->LineNumber);
 }
 
 uint32
@@ -768,98 +711,74 @@ ArchiveCompletedItems()
 void
 AddKeyword(int32 ItemNum, string Keyword)
 {
-    todo_file Todo = GetTodoFile();
+    LoadTodo(Todo, ItemIndex);
 
-    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
-    if (ItemIndex >= 0)
-    {  
-        todo_item* Item = &Todo.Items[ItemIndex];
-        Item->Body = CatStrings(Item->Body, STR(" "));
-        Item->Body = CatStrings(Item->Body, Keyword);
+    todo_item* Item = &Todo.Items[ItemIndex];
+    Item->Body = CatStrings(Item->Body, STR(" "));
+    Item->Body = CatStrings(Item->Body, Keyword);
 
-        if (SaveTodoFile(Todo))
-        {
-            PrintFC("Added |---_rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
-        }
-    }
-    else
-    {
-        PrintFC("|r`Unable to find item #%d.\n", ItemNum);
-    }
+    SaveTodo(Todo);
+    PrintFC("Added |---_rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
 }
 
 void
 RemoveKeyword(int32 ItemNum, string Keyword)
 {
+    LoadTodo(Todo, ItemIndex);
+    todo_item* Item = &Todo.Items[ItemIndex];
+
+    if (*(Keyword.Value) == null) { 
+        PrintFC("Item #%d not updated, invalid keyword.\n", ItemNum); 
+        return;
+    }
+
+    if (Keyword.Length == 1)
+    {
+        if (*Keyword.Value == '+' || *Keyword.Value == '@')
+        {
+            int64 StartIndex = StringIndexOf(Item->Body.Value, Keyword.Value);
+            int64 EndIndex = StringIndexOf(Item->Body.Value, " ", StartIndex);
+
+            if (StartIndex >= 0 && EndIndex >= 0)
+            {
+                Assert(EndIndex > StartIndex);
+                
+                //TODO(chronister): I think this is literally a Substring/Slice method
+                Keyword;
+                Keyword.Length = EndIndex - StartIndex;
+                Keyword.Capacity = Keyword.Length + 1;
+                Keyword.Value = (char*)Alloc(Keyword.Capacity, false);
+                CopyString(Keyword.Length, Item->Body.Value, Keyword.Length, Keyword.Value);                        
+            }
+        }
+    }
+
+    Keyword = CatStrings(STR(" "), Keyword);
+
+    int Replacements = StringReplace(&Item->Body, Keyword, STR(""));
+    string Confirmation = FormatString("Item |G`#%d` now reads |B`%s`, is this correct?", 
+                                            Item->LineNumber, Item->Body.Value);
+    if (!plat::ConfirmAction(Confirmation.Value)) { 
+        PrintFC("Removal aborted.\n"); 
+        FreeString(&Confirmation);
+        return;
+    }
+    FreeString(&Confirmation);
+
+    if (Replacements <= 0) {
+        PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
+        return;
+    }
+
+    SaveTodo(Todo);
     
-    todo_file Todo = GetTodoFile();
-
-    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, Todo);
-    if (ItemIndex >= 0)
-    {  
-        todo_item* Item = &Todo.Items[ItemIndex];
-
-        if (*(Keyword.Value))
-        {
-            if (Keyword.Length == 1)
-            {
-                if (*Keyword.Value == '+' || *Keyword.Value == '@')
-                {
-                    int64 StartIndex = StringIndexOf(Item->Body.Value, Keyword.Value);
-                    int64 EndIndex = StringIndexOf(Item->Body.Value, " ", StartIndex);
-
-                    if (StartIndex >= 0 && EndIndex >= 0)
-                    {
-                        Assert(EndIndex > StartIndex);
-                        
-                        //TODO(chronister): I think this is literally a Substring/Slice method
-                        Keyword;
-                        Keyword.Length = EndIndex - StartIndex;
-                        Keyword.Capacity = Keyword.Length + 1;
-                        Keyword.Value = (char*)Alloc(Keyword.Capacity, false);
-                        CopyString(Keyword.Length, Item->Body.Value, Keyword.Length, Keyword.Value);                        
-                    }
-                }
-            }
-            Keyword = CatStrings(STR(" "), Keyword);
-
-            int Replacements = StringReplace(&Item->Body, Keyword, STR(""));
-            char Buffer[256];
-            snprintf(Buffer, 256, "Item |G`#%d` now reads |B`%s`, is this correct? >> ", Item->LineNumber, Item->Body.Value);
-            if (ConfirmAction(STR(Buffer)))
-            {
-                if (Replacements > 0) 
-                {
-                    if (SaveTodoFile(Todo))
-                    {
-                        if (Replacements == 1)
-                        {
-                            PrintFC("Removed |---_rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
-                        }
-                        else
-                        {
-                            PrintFC("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
-                        }
-                    }
-                }
-                else
-                {
-                    PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
-                }
-            }
-            else
-            {
-                PrintFC("Removal aborted.\n");
-            }
-        }
-        else 
-        {
-            PrintFC("Item #%d not updated, invalid keyword.\n", ItemNum);
-        }
+    if (Replacements == 1)
+    {
+        PrintFC("Removed |---_rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
     }
     else
     {
-        PrintFC("Unable to find item #%d.\n", ItemNum);
+        PrintFC("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
     }
 }
 
@@ -917,6 +836,7 @@ ParseArgs(int argc, char* argv[])
             // Doesn't start with " or /, so it's either a command or an arg to a command
             if (CommandIndex < 0)
             {
+
                 if (CompareStrings(Arg, "ls") 
                  || CompareStrings(Arg, "list")) 
                 { 
