@@ -1,5 +1,6 @@
 #include "chr.h"
 #include "chr_string.h"
+#include "chr_array.h"
 #include "todo.h"
 
 global_variable char* TodoBasename = "todo.txt";
@@ -59,7 +60,7 @@ ReplaceFilenameInFilepath(string Filepath, string ReplacementName)
     size_t DirLen = OnePastLastSlash - Filepath.Value;
     string Result;
     Result.Length = (uint32)DirLen + ReplacementName.Length;
-    Result.Value = (char*)plat::Alloc(Result.Length);
+    Result.Value = (char*)plat::Alloc(Result.Length, false);
     CatStrings(DirLen, Filepath.Value, ReplacementName.Length, ReplacementName.Value, Result.Length, Result.Value);
     return Result;
 }
@@ -210,7 +211,7 @@ ParseTodoFile(plat::read_file_result File)
     todo_file Todo = {0};
 
     Todo.NumberOfItems = GetNumberOfLines(File);
-    Todo.Items = (todo_item*)plat::Alloc(sizeof(todo_item)*Todo.NumberOfItems);
+    Todo.Items = AllocArray(todo_item, Todo.NumberOfItems);
 
     uint32 LineNum = 0;
     char* Begin = (char*)File.Contents;
@@ -302,7 +303,7 @@ SerializeTodoFile(todo_file Todo)
         }
 
         Result.ContentsSize = TotalSize + 1;
-        Result.Contents = plat::Alloc(Result.ContentsSize);
+        Result.Contents = plat::Alloc(Result.ContentsSize, false);
         char* ResultContents = (char*)Result.Contents;
 
         size_t RunningSize = 0;
@@ -533,7 +534,7 @@ AddTodoItem(todo_item Item)
 {
     todo_file Todo = GetTodoFile();
     todo_item* OldItems = Todo.Items;
-    todo_item* NewItems = (todo_item*)plat::Alloc((Todo.NumberOfItems + 1)*sizeof(todo_item));
+    todo_item* NewItems = AllocArray(todo_item, (Todo.NumberOfItems + 1));
     CopyMemory(NewItems, OldItems, (Todo.NumberOfItems)*sizeof(todo_item));
     plat::Free((void*)OldItems);
     Todo.Items = NewItems;
@@ -673,7 +674,7 @@ ArchiveCompletedItems()
     todo_file Done = GetDoneFile(Todo.Filename);
 
     uint32 AllCompletedItems = Done.NumberOfItems + CountCompletedItems(Todo);
-    todo_item* CompletedItemList = (todo_item*)plat::Alloc(AllCompletedItems * sizeof(todo_item));
+    todo_item* CompletedItemList = AllocArray(todo_item, AllCompletedItems);
 
     size_t DoneItemsBytes = Done.NumberOfItems*sizeof(todo_item);
 
