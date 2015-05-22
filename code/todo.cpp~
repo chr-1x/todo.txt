@@ -322,7 +322,7 @@ SerializeTodoFile(todo_file Todo)
             char* ItemMem = (char*)plat::Alloc(ItemBufferSize, true);
             char* Serial = ItemMem;
             SerializeTodoItem(*Item, ItemBufferSize, &Serial);
-			if (Serial == null) { plat::Free(ItemMem); continue; }
+			if (Serial == null) { plat::Free(Serial); continue; }
 
             Assert((RunningSize + ItemLength) <= TotalSize);
             CatStrings(RunningSize, (char*)Result.Contents, ItemLength, Serial, TotalSize, (char*)Result.Contents);
