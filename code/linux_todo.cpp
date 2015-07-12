@@ -1,4 +1,3 @@
-#pragma GCC diagnostic ignored "-Wwrite-strings"
 #include "chr_linuxplatform.h"
 #include "todo.cpp"
 
