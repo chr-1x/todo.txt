@@ -13,9 +13,9 @@ set BASE_NAME=windows_todo
 set EXE_NAME=todo.exe
 
 set COMPAT= /MTd
-set OPTIMIZATION= /Gm- /GR- /EHa- /Od /Oi
-set WARNINGS= /WX /W4 /wd4201 /wd4100 /wd4189 /wd4505 /wd4706
-set DEBUG= /FC /Z7 /Fm
+set OPTIMIZATION= /GR- /EHa- /Od /Oi
+set WARNINGS= /w
+set DEBUG= /Zi
 set DEFINES= /DMEMCOUNT=1 /DCHR_MAIN
 set INCLUDE= /I%DEV%/lib/chr
 set CL_OPTIONS= /nologo %COMPAT% %DEFINES% %OPTIMIZATION% %WARNINGS% %DEBUG% %INCLUDE%
@@ -42,7 +42,7 @@ if "%~1" NEQ "" (
   goto :arg-top
 )
 if %ACTED%=="" (
-  goto win64
+  goto win32
 )
 goto :eof
 
@@ -55,12 +55,12 @@ goto :args
 
 :win64
 echo Building win64
-IF NOT EXIST win64 mkdir win64
-pushd win64
+IF NOT EXIST win64-clang mkdir win64-clang
+pushd win64-clang
 	if %CLEAN% NEQ "" del /Q . > NUL 2> NUL
 	del *.pdb > NUL 2> NUL
 	call "C:\Programs\Visual Studio 12.0\VC\vcvarsall.bat" amd64
-	cl %CL_OPTIONS% %CODE% %LIBS% %LINKER_64% /OUT:%EXE_NAME%
+	clang-cl %CL_OPTIONS% %CODE% -m64 %LIBS% %LINKER_64% /OUT:%EXE_NAME%
 	if ERRORLEVEL 1 goto :eof
 popd
 set ACTED="True"
@@ -69,12 +69,12 @@ goto :args
 
 :win32
 echo Building win32
-IF NOT EXIST win32 mkdir win32
-pushd win32
+IF NOT EXIST win32-clang mkdir win32-clang
+pushd win32-clang
 	if %CLEAN% NEQ "" del /Q . > NUL 2> NUL
 	del *.pdb > NUL 2> NUL
 	call "C:\Programs\Visual Studio 12.0\VC\vcvarsall.bat" amd64_x86
-	cl %CL_OPTIONS% %CODE% %LIBS% %LINKER_32% /OUT:%EXE_NAME%
+	clang-cl %CL_OPTIONS% %CODE% %LIBS% %LINKER_32% /OUT:%EXE_NAME%
 	if ERRORLEVEL 1 goto :eof
 popd
 set ACTED="True"

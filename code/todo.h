@@ -4,16 +4,16 @@ struct todo_item
 {
     uint32 LineNumber;
     bool32 Complete;
-    string Body;
-    string Raw;
+    bstring Body;
+    astring Raw;
     char Priority;
 };
 
 struct todo_file
 {
-    uint32 NumberOfItems;
-    todo_item* Items;
-    string Filename;
+	array<todo_item> Items;
+    astring Filename;
+	plat::read_file_result Raw;
 };
 
 enum command 
