@@ -147,7 +147,7 @@ CompareTodoItemLineNum(todo_item A, todo_item B)
 bool32
 PredicateItemComplete(todo_item* Item, void* Unused)
 {
-	return Item->Complete;
+    return Item->Complete;
 }
 
 internal int32
@@ -172,14 +172,14 @@ GetNumberOfLines(plat::read_file_result File)
 bool32
 IsNonTrivial(bstring String)
 {
-	foreach(char, C, String.Length, String.Value)
-	{
-		if (!(IsWhitespace(*C) || *C == '\0'))
-		{
-			return true;
-		}
-	}
-	return false;
+    foreach(char, C, String.Length, String.Value)
+    {
+        if (!(IsWhitespace(*C) || *C == '\0'))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 internal todo_item
@@ -212,40 +212,40 @@ ParseTodoLine(int32 LineNum, bstring Line)
 }
 
 internal todo_file
-ParseTodoFile(plat::read_file_result File, bool32 RemoveEmptyLines = false)
+ParseTodoFile(plat::read_file_result File)
 {
     todo_file Todo = {0};
 
-	uint32 MaximumItems = GetNumberOfLines(File);
-	Todo.Items = AllocateArray<todo_item>(MaximumItems);
+    uint32 MaximumItems = GetNumberOfLines(File);
+    Todo.Items = AllocateArray<todo_item>(MaximumItems);
 
     uint32 LineNum = 0;
     char* Begin = (char*)File.Contents;
     char* Start = Begin;
-	bool32 OnlyWhitespace = true;
+    bool32 OnlyWhitespace = true;
     for (uint32 i = 0;
-        i <= File.ContentsSize;
+        i < File.ContentsSize;
         ++i)
     {
         char* End = Begin + i;
-		if (!(IsWhitespace(*End) || *End == '\0')) { OnlyWhitespace = false; }
-        if (*End == '\n' || i == (File.ContentsSize))
+        if (!(IsWhitespace(*End) || *End == '\0')) { OnlyWhitespace = false; }
+        if (*End == '\n' || i == (File.ContentsSize - 1))
         {
-			if (!OnlyWhitespace)
-			{
-				Assert(LineNum < MaximumItems);
+            if (!OnlyWhitespace)
+            {
+                Assert(LineNum < MaximumItems);
 
-				bstring Line = {};
-				Line.Length = (uint32)(End - Start);
-				Line.Value = Start;
+                bstring Line = {};
+                Line.Length = (uint32)(End - Start);
+                Line.Value = Start;
 
-				todo_item Item = ParseTodoLine(LineNum+1, Line);
-				ArrayPush<todo_item>(&Todo.Items, Item);
+                todo_item Item = ParseTodoLine(LineNum+1, Line);
+                ArrayPush<todo_item>(&Todo.Items, Item);
 
-				OnlyWhitespace = true;
-			}
+                OnlyWhitespace = true;
+            }
             LineNum += 1;
-			Start = End + 1;
+            Start = End + 1;
         }
     }
 
@@ -275,41 +275,41 @@ GetItemStringSize(todo_item Item)
 internal bool32
 StringIsEmpty(uint32 StrLength, char* Str)
 {
-	for (uint32 i = 0; i < StrLength; ++i)
-	{
-		if (!IsWhitespace(Str[i])) { return false; }
-	}
-	return true;
+    for (uint32 i = 0; i < StrLength; ++i)
+    {
+        if (!IsWhitespace(Str[i])) { return false; }
+    }
+    return true;
 }
 
 internal bool32
 SerializeTodoItem(todo_item Item, bstring* Buffer)
 {
-	//Note: Buffer is an unusual bstring in that we'll be appending straight into it. For our purposes, we'll treat it
-	//as an astring, since we *know* that we'll be able to write to it.
-	astring Result = BStringToAString(*Buffer);
-	// Length needs to be zero for the append functions to work properly. 
-	// Also, The loft method above will ensure the capacity is set correctly.
-	Result.Length = 0; 
+    //Note: Buffer is an unusual bstring in that we'll be appending straight into it. For our purposes, we'll treat it
+    //as an astring, since we *know* that we'll be able to write to it.
+    astring Result = BStringToAString(*Buffer);
+    // Length needs to be zero for the append functions to work properly. 
+    // Also, The loft method above will ensure the capacity is set correctly.
+    Result.Length = 0; 
 
     if (StringIsEmpty((uint32)Item.Body.Length, Item.Body.Value)) { return false; }
-	uint32 ItemLength = GetItemStringSize(Item);
+    uint32 ItemLength = GetItemStringSize(Item);
     Assert(Result.Capacity >= ItemLength);
 
     if (Item.Complete)
     {
-		FormatIntoString(&Result, "x %.*s\n", Item.Body.Length, Item.Body.Value);
+        FormatIntoString(&Result, "x %.*s\n", Item.Body.Length, Item.Body.Value);
     }
     else if (Item.Priority)
     {
-		FormatIntoString(&Result, "(%c) %.*s\n", Item.Priority, Item.Body.Length, Item.Body.Value);
+        FormatIntoString(&Result, "(%c) %.*s\n", Item.Priority, Item.Body.Length, Item.Body.Value);
     }
     else
     {
-		FormatIntoString(&Result, "%.*s\n", Item.Body.Length + 1, Item.Body.Value);
+        FormatIntoString(&Result, "%.*s\n", Item.Body.Length + 1, Item.Body.Value);
     }
 
-	return true;
+    return true;
 }
 
 internal plat::read_file_result
@@ -318,15 +318,15 @@ SerializeTodoFile(todo_file Todo, bool32 RemoveEmptyLines)
     plat::read_file_result Result = {};
     if (Todo.Items.Length > 0)
     {
-		ArraySortBubble<todo_item>(&Todo.Items, &CompareTodoItemLineNum);
+        ArraySortBubble<todo_item>(&Todo.Items, &CompareTodoItemLineNum);
 
         uint32 TotalSize = 0;
-		{foreach(todo_item, Item, Todo.Items.Length, Todo.Items.Values)
+        {foreach(todo_item, Item, Todo.Items.Length, Todo.Items.Values)
         {
             TotalSize += GetItemStringSize(*Item);
         }}
-		//TODO(chronister): Do we really need to null-terminate?
-		TotalSize += 1; // For that sweet null-termination
+        //TODO(chronister): Do we really need to null-terminate?
+        TotalSize += 1; // For that sweet null-termination
 
         Result.ContentsSize = TotalSize;
         Result.Contents = plat::Alloc(Result.ContentsSize, false);
@@ -335,19 +335,19 @@ SerializeTodoFile(todo_file Todo, bool32 RemoveEmptyLines)
         uint32 RunningSize = 0;
         foreach(todo_item, Item, Todo.Items.Length, Todo.Items.Values)
         {
-			bstring Buffer;
-			// We need to set the length to the size + 1 so that vsnprintf can leave room for the null terminator
-			// without truncating the format. 
-			Buffer.Length = GetItemStringSize(*Item) + 1;
-			Buffer.Value = ResultContents + RunningSize;
+            bstring Buffer;
+            // We need to set the length to the size + 1 so that vsnprintf can leave room for the null terminator
+            // without truncating the format. 
+            Buffer.Length = GetItemStringSize(*Item) + 1;
+            Buffer.Value = ResultContents + RunningSize;
             Assert((RunningSize + Buffer.Length) <= TotalSize);
 
             if (SerializeTodoItem(*Item, &Buffer))
-			{
-				RunningSize += Buffer.Length - 1;
-				// We use the item size fetched above (minus the +1 added above for null terminator) because we don't need, or
-				// want, items to be separated by nulls!
-			}
+            {
+                RunningSize += Buffer.Length - 1;
+                // We use the item size fetched above (minus the +1 added above for null terminator) because we don't need, or
+                // want, items to be separated by nulls!
+            }
         }
 
         //Eliminate trailing newlines
@@ -383,7 +383,7 @@ GetDoneFile(astring TodoFilename)
     todo_file Todo = {0};
     if (Result.ContentsSize > 0)
     {
-		Todo = ParseTodoFile(Result, true);
+        Todo = ParseTodoFile(Result, true);
     }
     Todo.Filename = Filename;
     return Todo;
@@ -392,8 +392,8 @@ GetDoneFile(astring TodoFilename)
 void
 FreeTodoFile(todo_file* Todo)
 {
-	FreeArray<todo_item>(&Todo->Items);
-	FreeFile(Todo->Raw);
+    FreeArray<todo_item>(&Todo->Items);
+    FreeFile(Todo->Raw);
 }
 
 bool32
@@ -450,7 +450,7 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
         if (NumProjects > 0)
         {
             // _rgb`  ...   ` -- 6
-			// Allocates a new string with space for the line's text PLUS the characters in the color format string.
+            // Allocates a new string with space for the line's text PLUS the characters in the color format string.
             astring Temp1 = AllocateString(Line->Body.Length + 6 * NumProjects + 1 + 1);
             CopyString(Line->Body, &Temp1);
 
@@ -475,17 +475,17 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
                 LastKeychar = StringIndexOf(A2BSTR(Temp1), BSTR(" +"), (uint32)(LastSpace));
                 if (LastKeychar > 0)
                 {
-					StringReplace(A2BSTR(Temp1), &Temp2,
-							BSTR("+"), KeywordColor, (int)LastSpace, 1);
+                    StringReplace(A2BSTR(Temp1), &Temp2,
+                            BSTR("+"), KeywordColor, (int)LastSpace, 1);
                     CopyString(Temp2, &Temp1);
 
-					StringReplace(A2BSTR(Temp1), &Temp2, BSTR(" "), BSTR("` "), (int)LastKeychar + 1, 1);
+                    StringReplace(A2BSTR(Temp1), &Temp2, BSTR(" "), BSTR("` "), (int)LastKeychar + 1, 1);
                     CopyString(Temp2, &Temp1);
 
                     LastSpace = StringIndexOf(A2BSTR(Temp1), BSTR(" "), (uint32)(LastKeychar + 1));
                     if (LastSpace < 0)
-					{
-						break;
+                    {
+                        break;
                     }
                 }
                 else
@@ -505,7 +505,7 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
         }
         else if (Line->Priority)
         {
-			PrintFC("|RG`(%c)` %.*s\n", Line->Priority, ColoredBody.Length, ColoredBody.Value);
+            PrintFC("|RG`(%c)` %.*s\n", Line->Priority, ColoredBody.Length, ColoredBody.Value);
         }
         else
         {
@@ -522,7 +522,7 @@ void
 ListTodoItems(bstring* Query=0)
 {
     todo_file Todo = GetTodoFile();
-	ArraySortBubble(&Todo.Items, &CompareTodoItemPriority);
+    ArraySortBubble(&Todo.Items, &CompareTodoItemPriority);
     ListTodoItems(Todo, Query);
     FreeTodoFile(&Todo);
 }
@@ -534,7 +534,7 @@ GetTodoItemIndexFromLineNumber(uint32 Number, todo_file Todo)
     //TODO(chronister): Make some kind of standard, somewhat efficient
     //  array search
     for (uint32 i = 0;
-		i < Todo.Items.Length;
+        i < Todo.Items.Length;
         ++i)
     {
         if (Todo.Items.Values[i].LineNumber == Number)
@@ -548,47 +548,47 @@ GetTodoItemIndexFromLineNumber(uint32 Number, todo_file Todo)
 void
 AddTodoItem(todo_file* Todo, todo_item Item)
 {
-	//TODO(chronister): NumberOfItems is not actually related to line number. Need to find the highest line number
-	//somehow.
-	// (2015-07-23) in what circumstances?
+    //TODO(chronister): NumberOfItems is not actually related to line number. Need to find the highest line number
+    //somehow.
+    // (2015-07-23) in what circumstances?
     Item.LineNumber = Todo->Items.Length+1;
     ArrayPush<todo_item>(&Todo->Items, Item);
 
-	PrintFC("Added |B`\"%s\"` to todo.txt on line |G`#%d`.\n", Item.Body.Value, Item.LineNumber);
+    PrintFC("Added |B`\"%s\"` to todo.txt on line |G`#%d`.\n", Item.Body.Value, Item.LineNumber);
 }
 
 void
 AddTodoItem(todo_file* Todo, char* It)
 {
-	bstring ItemStr = BSTR(It);
-	todo_item Item = ParseTodoLine(0, ItemStr);
-	AddTodoItem(Todo, Item);
+    bstring ItemStr = BSTR(It);
+    todo_item Item = ParseTodoLine(0, ItemStr);
+    AddTodoItem(Todo, Item);
 }
 
 void
 RemoveTodoItem(todo_file* Todo, int ItemNum)
 {
-	int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
     if (ItemIndex < 0) 
-	{ 
-		PrintFC("|R`No item at line %d!`\n", ItemNum);
-		return; 
-	}
+    { 
+        PrintFC("|R`No item at line %d!`\n", ItemNum);
+        return; 
+    }
 
     RemoveItemByIndex<todo_item>(&Todo->Items, (uint32)ItemIndex);
-	PrintFC("Removed item |G`#%d`.\n", ItemNum);
+    PrintFC("Removed item |G`#%d`.\n", ItemNum);
     return;
 }
 
 void
 PrioritizeTodoItem(todo_file* Todo, int32 ItemNum, char Priority)
 {
-	int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
-	if (ItemIndex < 0)
-	{
-		PrintFC("|R`No item at line %d!`\n", ItemNum);
-		return;
-	}
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
+    if (ItemIndex < 0)
+    {
+        PrintFC("|R`No item at line %d!`\n", ItemNum);
+        return;
+    }
     todo_item* Item = Get<todo_item>(Todo->Items, (uint32)ItemIndex);
     Item->Priority = Priority;
 
@@ -606,12 +606,12 @@ PrioritizeTodoItem(todo_file* Todo, int32 ItemNum, char Priority)
 void
 SetTodoItemCompletion(todo_file* Todo, int32 ItemNum, bool32 Complete)
 {
-	int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
-	if (ItemIndex < 0)
-	{
-		PrintFC("|R`No item at line %d!`\n", ItemNum);
-		return;
-	}
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
+    if (ItemIndex < 0)
+    {
+        PrintFC("|R`No item at line %d!`\n", ItemNum);
+        return;
+    }
 
     todo_item* Item = Get<todo_item>(Todo->Items, (uint32)ItemIndex);
     Item->Complete = Complete;
@@ -622,12 +622,12 @@ SetTodoItemCompletion(todo_file* Todo, int32 ItemNum, bool32 Complete)
 void
 EditTodoItem(todo_file* Todo, int32 ItemNum, bstring NewText)
 {
-	int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
-	if (ItemIndex < 0)
-	{
-		PrintFC("|R`No item at line %d!`\n", ItemNum);
-		return;
-	}
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
+    if (ItemIndex < 0)
+    {
+        PrintFC("|R`No item at line %d!`\n", ItemNum);
+        return;
+    }
 
     todo_item* Item = Get<todo_item>(Todo->Items, (uint32)ItemIndex);
     Item->Body = NewText;
@@ -638,39 +638,39 @@ EditTodoItem(todo_file* Todo, int32 ItemNum, bstring NewText)
 uint32
 CountCompletedItems(todo_file Todo)
 {
-	return ArrayOccurrences<todo_item>(Todo.Items, PredicateItemComplete, (void*)(null));
+    return ArrayOccurrences<todo_item>(Todo.Items, PredicateItemComplete, (void*)(null));
 }
 
 void
 ArchiveCompletedItems(todo_file* Todo, todo_file* Done)
 {
-	array<todo_item*> CompletedItems = ArrayFilter<todo_item>(Todo->Items, PredicateItemComplete, (void*)(null));
-	ArrayPushAllReferences<todo_item>(&Done->Items, CompletedItems);
-	FreeArray(&CompletedItems);
-	
+    array<todo_item*> CompletedItems = ArrayFilter<todo_item>(Todo->Items, PredicateItemComplete, (void*)(null));
+    ArrayPushAllReferences<todo_item>(&Done->Items, CompletedItems);
+    FreeArray(&CompletedItems);
+    
     if (SaveDoneFile(*Done))
     {
-		PrintFC("Archived the completed items.\n");
+        PrintFC("Archived the completed items.\n");
     }
 }
 
 void
 AddKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
 {
-	int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
-	if (ItemIndex < 0)
-	{
-		PrintFC("|R`No item at line %d!`\n", ItemNum);
-		return;
-	}
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
+    if (ItemIndex < 0)
+    {
+        PrintFC("|R`No item at line %d!`\n", ItemNum);
+        return;
+    }
 
     todo_item* Item = Get<todo_item>(Todo->Items, (uint32)ItemIndex);
 
-	astring BodyBuffer = AllocateString(Item->Body.Length + 1 + Keyword.Length);
-	AppendToString(&BodyBuffer, Item->Body);
-	AppendToString(&BodyBuffer, BSTR(" "));
+    astring BodyBuffer = AllocateString(Item->Body.Length + 1 + Keyword.Length);
+    AppendToString(&BodyBuffer, Item->Body);
+    AppendToString(&BodyBuffer, BSTR(" "));
     AppendToString(&BodyBuffer, Keyword);
-	Item->Body = A2BSTR(BodyBuffer);
+    Item->Body = A2BSTR(BodyBuffer);
 
     PrintFC("Added |---_rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
 }
@@ -678,12 +678,12 @@ AddKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
 void
 RemoveKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
 {
-	int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
-	if (ItemIndex < 0)
-	{
-		PrintFC("|R`No item at line %d!`\n", ItemNum);
-		return;
-	}
+    int64 ItemIndex = GetTodoItemIndexFromLineNumber(ItemNum, *Todo);
+    if (ItemIndex < 0)
+    {
+        PrintFC("|R`No item at line %d!`\n", ItemNum);
+        return;
+    }
 
     todo_item* Item = Get<todo_item>(Todo->Items, (uint32)ItemIndex);
 
@@ -697,37 +697,37 @@ RemoveKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
         if (*Keyword.Value == '+' || *Keyword.Value == '@')
         {
             int64 StartIndex = StringIndexOf(Item->Body.Value, Keyword.Value);
-			int64 EndIndex = -1;
-            if (StartIndex >= 0) { EndIndex = StringIndexOf(Item->Body.Value, " ", (uint32)StartIndex); }
+            int64 EndIndex = -1;
+            if (StartIndex >= 0) { EndIndex = StringIndexOf(Item->Body, BSTR(" "), (uint32)StartIndex); }
 
             if (StartIndex >= 0 && EndIndex >= 0)
             {
                 Assert(EndIndex > StartIndex);
 
                 Keyword.Length = (uint32)(EndIndex - StartIndex);
-				Keyword.Value = Item->Body.Value + StartIndex;
+                Keyword.Value = Item->Body.Value + StartIndex;
             }
         }
     }
 
     astring KeywordToken = CatStrings(BSTR(" "), Keyword);
 
-	astring NewBody = BStringToAString(Item->Body);
+    astring NewBody = BStringToAString(Item->Body);
     int Replacements = StringReplace(&NewBody, A2BSTR(KeywordToken), BSTR(""));
-	
+    
     astring Confirmation = FormatString("Item |G`#%d` now reads |B`%s`, is this correct?",
                                             Item->LineNumber, Item->Body.Value);
     if (!plat::ConfirmAction(Confirmation.Value)) {
         PrintFC("Removal aborted.\n");
-		goto cleanup;
+        goto cleanup;
     }
 
     if (Replacements <= 0) {
         PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
-		goto cleanup;
+        goto cleanup;
     }
 
-	Item->Body = A2BSTR(NewBody);
+    Item->Body = A2BSTR(NewBody);
 
     if (Replacements == 1)
     {
@@ -738,10 +738,10 @@ RemoveKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
         PrintFC("Removed %d instances of _rgb`%s` from item |G`#%d`.\n", Replacements, Keyword.Value, Item->LineNumber);
     }
 
-	cleanup:
-	FreeString(&Confirmation);
-	FreeString(&KeywordToken);
-	return;
+    cleanup:
+    FreeString(&Confirmation);
+    FreeString(&KeywordToken);
+    return;
 }
 
 internal void
@@ -923,26 +923,26 @@ ParseArgs(int argc, char* argv[])
 
 void* AllocateTracked(size_t BytesToAlloc, bool32 ZeroMemory)
 {
-	void* Result = plat::Alloc(BytesToAlloc, ZeroMemory);
-	ArrayPush<void*>(&AllocatedStringList, Result);
-	return Result;
+    void* Result = plat::Alloc(BytesToAlloc, ZeroMemory);
+    ArrayPush<void*>(&AllocatedStringList, Result);
+    return Result;
 }
 
 bool32 FreeTracked(void* Memory)
 {
-	RemoveItemByValue<void*>(&AllocatedStringList, Memory);
-	return plat::Free(Memory);
+    RemoveItemByValue<void*>(&AllocatedStringList, Memory);
+    return plat::Free(Memory);
 }
 
 internal int
 RunFromArguments(parse_args_result Args)
 {
-	//win32::PrintMemoryUsage("START");
-	ArrayAllocFunc = plat::Alloc;
-	ArrayFreeFunc = plat::Free;
-	AllocatedStringList = AllocateArray<void*>(1024);
-	StringAllocFunc = AllocateTracked;
-	StringFreeFunc = FreeTracked;
+    //win32::PrintMemoryUsage("START");
+    ArrayAllocFunc = plat::Alloc;
+    ArrayFreeFunc = plat::Free;
+    AllocatedStringList = AllocateArray<void*>(1024);
+    StringAllocFunc = AllocateTracked;
+    StringFreeFunc = FreeTracked;
 
     char* Usage = "Usage: todo action [task_number] [task_description]";
     char* Help = "Usage: todo action [task_number] [task_description]\n"
@@ -960,8 +960,8 @@ RunFromArguments(parse_args_result Args)
                   "  replace|edit # \"Sleep on even larger pile of gold +DragonThings @home\"\n";
 
     todo_file Todo = GetTodoFile();
-	bool32 Modified = false;
-	if (Args.Flags & FLAG_REMOVE_BLANK_LINES) { Modified = true; }
+    bool32 Modified = false;
+    if (Args.Flags & FLAG_REMOVE_BLANK_LINES) { Modified = true; }
 
     switch (Args.Command)
     {
@@ -988,7 +988,7 @@ RunFromArguments(parse_args_result Args)
             {
                 PrintFC("Please specify a valid thing to add.\n");
             }
-			else { Modified = true; }
+            else { Modified = true; }
         } break;
 
         case CMD_EDIT:
@@ -998,7 +998,7 @@ RunFromArguments(parse_args_result Args)
                 if (Args.StringArgCount == 1)
                 {
                     EditTodoItem(&Todo, Args.NumericArgs[0], BSTR(Args.StringArgs[0]));
-					Modified = true;
+                    Modified = true;
                 }
                 else
                 {
@@ -1016,7 +1016,7 @@ RunFromArguments(parse_args_result Args)
             foreach(int32, It, Args.NumericArgCount, Args.NumericArgs)
             {
                 RemoveTodoItem(&Todo, *It);
-				Modified = true;
+                Modified = true;
             }
             if (Args.NumericArgCount == 0)
             {
@@ -1031,7 +1031,7 @@ RunFromArguments(parse_args_result Args)
                 if (Args.StringArgCount == 1 && IsValidPriority(*(Args.StringArgs[0])))
                 {
                     PrioritizeTodoItem(&Todo, Args.NumericArgs[0], *(Args.StringArgs[0]));
-					Modified = true;
+                    Modified = true;
                 }
                 else
                 {
@@ -1054,7 +1054,7 @@ RunFromArguments(parse_args_result Args)
             {
                 PrintFC("Please supply at least one item number to deprioritize.\n");
             }
-			else { Modified = true; }
+            else { Modified = true; }
         } break;
 
         case CMD_COMPLETE:
@@ -1067,14 +1067,14 @@ RunFromArguments(parse_args_result Args)
             {
                 PrintFC("Please supply at least one item number to complete.\n");
             }
-			else { Modified = true; }
+            else { Modified = true; }
         } break;
 
         case CMD_ARCHIVE:
         {
-			todo_file Done = GetDoneFile(Todo.Filename);
+            todo_file Done = GetDoneFile(Todo.Filename);
             ArchiveCompletedItems(&Todo, &Done);
-			Modified = true;
+            Modified = true;
         } break;
 
         case CMD_ADD_KW:
@@ -1088,23 +1088,23 @@ RunFromArguments(parse_args_result Args)
                     foreach(char*, K, Args.StringArgCount, Args.StringArgs)
                     {
                         astring Keyword = ASTR(*K);
-						bool32 KwModified = false;
+                        bool32 KwModified = false;
                         if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
                         {
                             Keyword = CatStrings(BSTR("+"), A2BSTR(Keyword));
-							KwModified = true;
+                            KwModified = true;
                         }
                         else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
                         {
                             Keyword = CatStrings(BSTR("@"), A2BSTR(Keyword));
-							KwModified = true;
+                            KwModified = true;
                         }
 
                         AddKeyword(&Todo, *ItemNum, A2BSTR(Keyword));
-						if (KwModified) FreeString(&Keyword);
+                        if (KwModified) FreeString(&Keyword);
                     }
                 }
-				Modified = true;
+                Modified = true;
             }
             else
             {
@@ -1138,24 +1138,24 @@ RunFromArguments(parse_args_result Args)
                         foreach(char*, K, Args.StringArgCount, Args.StringArgs)
                         {
                             astring Keyword = ASTR(*K);
-							bool32 KwModified = false;
+                            bool32 KwModified = false;
                             if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
                             {
                                 Keyword = CatStrings(BSTR("+"), A2BSTR(Keyword));
-								KwModified = true;
+                                KwModified = true;
                             }
                             else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
                             {
                                 Keyword = CatStrings(BSTR("@"), A2BSTR(Keyword));
-								KwModified = true;
+                                KwModified = true;
                             }
 
                             RemoveKeyword(&Todo, *N, A2BSTR(Keyword));
-							if (KwModified) FreeString(&Keyword);
+                            if (KwModified) FreeString(&Keyword);
                         }
                     }
                 }
-				Modified = true;
+                Modified = true;
             }
             else
             {

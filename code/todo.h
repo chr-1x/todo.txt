@@ -5,7 +5,6 @@ struct todo_item
     uint32 LineNumber;
     bool32 Complete;
     bstring Body;
-    astring Raw;
     char Priority;
 };
 
