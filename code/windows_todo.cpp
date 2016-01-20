@@ -1,4 +1,4 @@
-#include "chr_winplatform.h"
+#include <chr_winplatform.h>
 #include "todo.cpp"
 
 #undef Assert
@@ -6,7 +6,7 @@
 
 //#pragma clang diagnostic ignored "-Wwritable-strings"
 
-int WindowsMain(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     return RunFromArguments(ParseArgs(argc, argv));
 }

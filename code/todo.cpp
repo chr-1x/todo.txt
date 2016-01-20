@@ -1,8 +1,7 @@
-#include "chr.h"
-#include "chr_string.h"
-#include "chr_array.h"
+#include <chr.h>
+#include <chr_string.h>
+#include <chr_array.h>
 #include "todo.h"
-
 
 global_variable char* TodoBasename = "todo.txt";
 global_variable char* DoneBasename = "done.txt";
@@ -76,31 +75,6 @@ inline bool32
 IsValidPriority(char Test)
 {
     return (Test >= 'A' && Test <= 'Z');
-}
-
-//TODO(chronister): Generalize this out into a generic array sort function
-//TODO(chronister): Use something other than a bubble sort?
-internal void
-SortTodoItemList(uint32 Length, todo_item* List, int32 (*Compare)(todo_item, todo_item))
-{
-    int32 Swaps = 0;
-    uint32 N = Length;
-    uint32 NewN = 0;
-    do
-    {
-        NewN = 0;
-        for (uint32 i = 1;
-            i < N;
-            ++i)
-        {
-            if (Compare(List[i - 1], List[i]) >= 0)
-            {
-                Swap(List[i], List[i - 1], todo_item);
-                NewN = i;
-            }
-        }
-        N = NewN;
-    } while(N > 0);
 }
 
 int32
@@ -287,6 +261,7 @@ SerializeTodoItem(todo_item Item, bstring* Buffer)
 {
     //Note: Buffer is an unusual bstring in that we'll be appending straight into it. For our purposes, we'll treat it
     //as an astring, since we *know* that we'll be able to write to it.
+    //The only reason we pass it in as a bstring is because it's not technically 
     astring Result = BStringToAString(*Buffer);
     // Length needs to be zero for the append functions to work properly. 
     // Also, The loft method above will ensure the capacity is set correctly.
@@ -325,8 +300,7 @@ SerializeTodoFile(todo_file Todo, bool32 RemoveEmptyLines)
         {
             TotalSize += GetItemStringSize(*Item);
         }}
-        //TODO(chronister): Do we really need to null-terminate?
-        TotalSize += 1; // For that sweet null-termination
+        TotalSize += 1; // To accomodate the newline on the last item (we'll remove it later)
 
         Result.ContentsSize = TotalSize;
         Result.Contents = plat::Alloc(Result.ContentsSize, false);
@@ -362,14 +336,14 @@ SerializeTodoFile(todo_file Todo, bool32 RemoveEmptyLines)
 }
 
 todo_file
-GetTodoFile(bool32 RemoveEmptyLines = false)
+GetTodoFile()
 {
     astring Filename = GetTodoFilename();
     plat::read_file_result Result = plat::ReadEntireFile(Filename.Value);
     todo_file Todo = {};
     if (Result.ContentsSize > 0)
     {
-        Todo = ParseTodoFile(Result, RemoveEmptyLines);
+        Todo = ParseTodoFile(Result);
     }
     Todo.Filename = Filename;
     return Todo;
@@ -383,7 +357,7 @@ GetDoneFile(astring TodoFilename)
     todo_file Todo = {0};
     if (Result.ContentsSize > 0)
     {
-        Todo = ParseTodoFile(Result, true);
+        Todo = ParseTodoFile(Result);
     }
     Todo.Filename = Filename;
     return Todo;
@@ -423,7 +397,7 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
         PrintFC("|R`No items to do!\n");
         return;
     }
-    int32 MaxWidth = Log10(Todo.Items.Length) + 1;
+    int32 MaxWidth = (int32)Log10(Todo.Items.Length) + 1;
     foreach(todo_item, Line, Todo.Items.Length, Todo.Items.Values)
     {
         if (Line->Body.Length <= 1) { continue; } // Don't display blank lines
@@ -436,7 +410,7 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
             }
         }
 
-        int32 LineWidth = Log10(Line->LineNumber);
+        int32 LineWidth = (int32)Log10(Line->LineNumber);
         for (int i = 0;
              i < MaxWidth - LineWidth;
              ++i)
@@ -498,17 +472,19 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
             FreeString(&Temp2);
         }
 
-        PrintFC("|G`%d:` ", Line->LineNumber);
         if (Line->Complete)
         {
+            PrintFC("|r`%d:` ", Line->LineNumber);
             PrintFC("x %.*s\n", ColoredBody.Length, ColoredBody.Value);
         }
         else if (Line->Priority)
         {
+            PrintFC("|G`%d:` ", Line->LineNumber);
             PrintFC("|RG`(%c)` %.*s\n", Line->Priority, ColoredBody.Length, ColoredBody.Value);
         }
         else
         {
+            PrintFC("|G`%d:` ", Line->LineNumber);
             PrintFC("%.*s\n", ColoredBody.Length, ColoredBody.Value);
         }
 
@@ -672,7 +648,7 @@ AddKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
     AppendToString(&BodyBuffer, Keyword);
     Item->Body = A2BSTR(BodyBuffer);
 
-    PrintFC("Added |---_rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
+    PrintFC("Added _rgb`%s` item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
 }
 
 void
@@ -715,15 +691,15 @@ RemoveKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
     astring NewBody = BStringToAString(Item->Body);
     int Replacements = StringReplace(&NewBody, A2BSTR(KeywordToken), BSTR(""));
     
-    astring Confirmation = FormatString("Item |G`#%d` now reads |B`%s`, is this correct?",
-                                            Item->LineNumber, Item->Body.Value);
+    astring Confirmation = FormatString("Item |G`#%d` now reads |B`%.*s`, is this correct?",
+                                            Item->LineNumber, NewBody.Length, NewBody.Value);
     if (!plat::ConfirmAction(Confirmation.Value)) {
         PrintFC("Removal aborted.\n");
         goto cleanup;
     }
 
     if (Replacements <= 0) {
-        PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value+1, Item->LineNumber);
+        PrintFC("Couldn't find %s in item #%d.\n", Keyword.Value, Item->LineNumber);
         goto cleanup;
     }
 
@@ -731,7 +707,7 @@ RemoveKeyword(todo_file* Todo, int32 ItemNum, bstring Keyword)
 
     if (Replacements == 1)
     {
-        PrintFC("Removed |---_rgb`%s` from item |G`#%d`.\n", Keyword.Value+1, Item->LineNumber);
+        PrintFC("Removed _rgb`%s` from item |G`#%d`.\n", Keyword.Value, Item->LineNumber);
     }
     else
     {
@@ -1139,12 +1115,12 @@ RunFromArguments(parse_args_result Args)
                         {
                             astring Keyword = ASTR(*K);
                             bool32 KwModified = false;
-                            if (Args.Command == CMD_ADD_PROJ && Keyword.Value[0] != '+')
+                            if (Args.Command == CMD_REMOVE_PROJ && Keyword.Value[0] != '+')
                             {
                                 Keyword = CatStrings(BSTR("+"), A2BSTR(Keyword));
                                 KwModified = true;
                             }
-                            else if (Args.Command == CMD_ADD_CTX && Keyword.Value[0] != '@')
+                            else if (Args.Command == CMD_REMOVE_CTX && Keyword.Value[0] != '@')
                             {
                                 Keyword = CatStrings(BSTR("@"), A2BSTR(Keyword));
                                 KwModified = true;

@@ -16,8 +16,8 @@ set COMPAT= /MTd
 set OPTIMIZATION= /Gm- /GR- /EHa- /Od /Oi
 set WARNINGS= /WX /W4 /wd4201 /wd4100 /wd4189 /wd4505 /wd4706
 set DEBUG= /FC /Z7 /Fm
-set DEFINES= /DMEMCOUNT=1 /DCHR_MAIN
-set INCLUDE= /I%DEV%/lib/chr
+set DEFINES=
+set INCLUDE= /I../../code/chr
 set CL_OPTIONS= /nologo %COMPAT% %DEFINES% %OPTIMIZATION% %WARNINGS% %DEBUG% %INCLUDE%
 
 set CODE= ../../code/windows_todo.cpp
@@ -59,7 +59,7 @@ IF NOT EXIST win64 mkdir win64
 pushd win64
 	if %CLEAN% NEQ "" del /Q . > NUL 2> NUL
 	del *.pdb > NUL 2> NUL
-	call "C:\Programs\Visual Studio 12.0\VC\vcvarsall.bat" amd64
+	call "%VC%\vcvarsall.bat" amd64
 	cl %CL_OPTIONS% %CODE% %LIBS% %LINKER_64% /OUT:%EXE_NAME%
 	if ERRORLEVEL 1 goto :eof
 popd
@@ -73,7 +73,7 @@ IF NOT EXIST win32 mkdir win32
 pushd win32
 	if %CLEAN% NEQ "" del /Q . > NUL 2> NUL
 	del *.pdb > NUL 2> NUL
-	call "C:\Programs\Visual Studio 12.0\VC\vcvarsall.bat" amd64_x86
+	call "%VC%\vcvarsall.bat" amd64_x86
 	cl %CL_OPTIONS% %CODE% %LIBS% %LINKER_32% /OUT:%EXE_NAME%
 	if ERRORLEVEL 1 goto :eof
 popd
