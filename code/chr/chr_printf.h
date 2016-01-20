@@ -1,7 +1,7 @@
 /* Null-termination independent printf! */
-#include <chr_string.h>
-#include <chr_math.h>
-#include <chr_intrin.h>
+#include "chr_string.h"
+#include "chr_math.h"
+#include "chr_intrin.h"
 
 #include "stdarg.h"
 
@@ -148,8 +148,8 @@ PrintFloat(float64 Num, float_format Format, uint32 BufferCapacity, char* Buffer
 
 	if (!Format.LeftJustify && PadWidth > 0)
 	{
-		while (Cursor - Buffer < PadWidth
-			&& Cursor - Buffer < BufferCapacity)
+		while ((Cursor - Buffer) < (int32)PadWidth
+			&& (Cursor - Buffer) < (int32)BufferCapacity)
 		{
 			*Cursor++ = Format.PadCharacter;
 		}
@@ -175,14 +175,14 @@ PrintFloat(float64 Num, float_format Format, uint32 BufferCapacity, char* Buffer
 	{
 		uint8 DigitValue = (uint8)trunc(fmod(WholePart, 10.));
 		WholePart /= 10.;
-		if (Cursor - Buffer < BufferCapacity)
+		if ((Cursor - Buffer) < (int32)BufferCapacity)
 			*Cursor = PrintfDigits[DigitValue];
 	}
 	Cursor += WholeWidth + 1;
 #endif
 	//Postcondition: Cursor after lowest digit of num
 	
-	if (Cursor - Buffer <= BufferCapacity)
+	if ((Cursor - Buffer) <= (int32)BufferCapacity)
 		*Cursor = Format.RadixCharacter;
 	for (char* NumCursor = Cursor + 1;
 	    NumCursor - Cursor <= RadixWidth;
@@ -190,7 +190,7 @@ PrintFloat(float64 Num, float_format Format, uint32 BufferCapacity, char* Buffer
 	{
 		float64 PlaceMul = pow(10., (float64)(NumCursor - Cursor));
 		uint8 DigitValue = (uint8)trunc(fmod(FractionalPart * PlaceMul, 10.));
-		if (NumCursor - Buffer < BufferCapacity)
+		if ((NumCursor - Buffer) < (int32)BufferCapacity)
 			*NumCursor = PrintfDigits[DigitValue];
 	}
 	Cursor += RadixWidth;
@@ -199,7 +199,7 @@ PrintFloat(float64 Num, float_format Format, uint32 BufferCapacity, char* Buffer
 	if (Format.LeftJustify && PadWidth > 0)
 	{
 		while (PadCursor - Cursor < PadWidth
-			&& PadCursor - Buffer < BufferCapacity)
+			&& (PadCursor - Buffer) < (int32)BufferCapacity)
 		{
 			*PadCursor++ = Format.PadCharacter;
 		}
