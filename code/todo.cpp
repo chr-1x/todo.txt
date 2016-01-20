@@ -1,12 +1,13 @@
-#include <chr.h>
-#include <chr_string.h>
-#include <chr_array.h>
+#include "chr/chr.h"
+#include "chr/chr_string.h"
+#include "chr/chr_array.h"
 #include "todo.h"
 
 global_variable char* TodoBasename = "todo.txt";
 global_variable char* DoneBasename = "done.txt";
 
-array<void*> AllocatedStringList;
+// NOTE(chronister): Debug only
+//global_variable array<void*> AllocatedStringList;
 
 //NOTE(chronister): This function returns whether or not Filename was found
 // in either pwd or user home dir. If it wasn't (returns false), the program
@@ -77,7 +78,7 @@ IsValidPriority(char Test)
     return (Test >= 'A' && Test <= 'Z');
 }
 
-int32
+internal int32
 CompareStringValues(bstring A, bstring B)
 {
     int i;
@@ -96,7 +97,7 @@ CompareStringValues(bstring A, bstring B)
     return 0;
 }
 
-int32
+internal int32
 CompareTodoItemPriority(todo_item A, todo_item B)
 {
     if (A.Priority == 0 && B.Priority > 0) { return 1; }
@@ -110,7 +111,7 @@ CompareTodoItemPriority(todo_item A, todo_item B)
     return CompareStrings(A.Body, B.Body);
 }
 
-int32
+internal int32
 CompareTodoItemLineNum(todo_item A, todo_item B)
 {
     if (A.LineNumber < B.LineNumber) { return -1; }
@@ -118,7 +119,7 @@ CompareTodoItemLineNum(todo_item A, todo_item B)
     return 0;
 }
 
-bool32
+internal bool32
 PredicateItemComplete(todo_item* Item, void* Unused)
 {
     return Item->Complete;
@@ -390,7 +391,7 @@ bool32 ItemMatchesQuery(todo_item* Item, bstring* Query)
 }
 
 void
-ListTodoItems(todo_file Todo, bstring* Query=0)
+ListTodoItems(todo_file Todo, bstring* Query=NULL)
 {
     if (Todo.Items.Length <= 0)
     {
@@ -402,7 +403,7 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
     {
         if (Line->Body.Length <= 1) { continue; } // Don't display blank lines
 
-        if (Query)
+        if (Query != NULL)
         {
             if (!ItemMatchesQuery(Line, Query))
             {
@@ -495,7 +496,7 @@ ListTodoItems(todo_file Todo, bstring* Query=0)
     }
 }
 void
-ListTodoItems(bstring* Query=0)
+ListTodoItems(bstring* Query=NULL)
 {
     todo_file Todo = GetTodoFile();
     ArraySortBubble(&Todo.Items, &CompareTodoItemPriority);
@@ -623,6 +624,10 @@ ArchiveCompletedItems(todo_file* Todo, todo_file* Done)
     array<todo_item*> CompletedItems = ArrayFilter<todo_item>(Todo->Items, PredicateItemComplete, (void*)(null));
     ArrayPushAllReferences<todo_item>(&Done->Items, CompletedItems);
     FreeArray(&CompletedItems);
+
+    // TODO(chronister): Filtering the array would also, trivially, give you the items that were _not_ complete,
+    // which we need here. Any way to get both subsets from the above call?
+    RemoveAllMatchingItems<todo_item>(&Todo->Items, PredicateItemComplete, (void*)(null));
     
     if (SaveDoneFile(*Done))
     {
@@ -897,18 +902,22 @@ ParseArgs(int argc, char* argv[])
     return Result;
 }
 
-void* AllocateTracked(size_t BytesToAlloc, bool32 ZeroMemory)
+#if 0 // Debug only
+internal void* 
+AllocateTracked(size_t BytesToAlloc, bool32 ZeroMemory)
 {
     void* Result = plat::Alloc(BytesToAlloc, ZeroMemory);
     ArrayPush<void*>(&AllocatedStringList, Result);
     return Result;
 }
 
-bool32 FreeTracked(void* Memory)
+internal bool32 
+FreeTracked(void* Memory)
 {
     RemoveItemByValue<void*>(&AllocatedStringList, Memory);
     return plat::Free(Memory);
 }
+#endif
 
 internal int
 RunFromArguments(parse_args_result Args)
@@ -916,9 +925,13 @@ RunFromArguments(parse_args_result Args)
     //win32::PrintMemoryUsage("START");
     ArrayAllocFunc = plat::Alloc;
     ArrayFreeFunc = plat::Free;
-    AllocatedStringList = AllocateArray<void*>(1024);
-    StringAllocFunc = AllocateTracked;
-    StringFreeFunc = FreeTracked;
+    StringAllocFunc = plat::Alloc;
+    StringFreeFunc = plat::Free;
+
+    // Debug only
+    //AllocatedStringList = AllocateArray<void*>(1024);
+    //StringAllocFunc = AllocateTracked;
+    //StringFreeFunc = FreeTracked;
 
     char* Usage = "Usage: todo action [task_number] [task_description]";
     char* Help = "Usage: todo action [task_number] [task_description]\n"

@@ -8,5 +8,6 @@
 
 int main(int argc, char* argv[])
 {
+    plat::Initialize();
     return RunFromArguments(ParseArgs(argc, argv));
 }

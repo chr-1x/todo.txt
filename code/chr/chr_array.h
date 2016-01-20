@@ -342,6 +342,19 @@ RemoveMatchingItem(array<T>* Array, bool32 (*Predicate)(T*, void*), void* Predic
 	}
 }
 
+template <typename T>
+void
+RemoveAllMatchingItems(array<T>* Array, bool32 (*Predicate)(T*, void*), void* PredicateArg, uint32 StartSearch = 0)
+{
+	int64 ItemIndex;
+    //TODO(chronister): This is kind of a dumb way to do the removal...maybe just loop through and
+    // copy back all the ones that don't meet the predicate?
+    while ((ItemIndex = ArraySearch(*Array, Predicate, PredicateArg, StartSearch)) >= 0)
+	{
+		RemoveItemByIndex(Array, (uint32)ItemIndex);
+	}
+}
+
 // Note: This will only really work with maybe strings, and structs with
 // uint8-size members. Won't work with little-endian since a number with nothing
 // in the LSByte but a bunch in the MSByte would not be sorted above a number

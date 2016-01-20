@@ -50,6 +50,12 @@ struct parse_args_result
     int32 NumericArgs[10];    
 };
 
+void
+ListTodoItems(todo_file Todo, bstring* QueryL);
+
+void
+ListTodoItems(bstring* Query);
+
 
 #define TODO_H
 #endif
